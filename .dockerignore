@@ -1,6 +1,10 @@
-node_modules
+frontend/node_modules
 .git
+**/.git
 .env
-dist
+**/.env
+data/*.db*
+*.db
 coverage
+**/coverage
 *.log

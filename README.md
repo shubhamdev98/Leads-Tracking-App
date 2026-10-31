@@ -7,18 +7,21 @@ A modern, production-ready **Lead Management Portal** backed by a REST API. Buil
 ## 🌟 Highlights & Features
 
 ### 1. Leads CRUD Operations
+
 - **Create**: Add new customer leads with comprehensive input validation (`name`, `email`, `phone`, `status`).
 - **Read**: List leads with real-time search (by name or email), status filtering (`all`, `new`, `contacted`, `qualified`, `lost`), and pagination controls.
 - **Update**: Modify lead contact details and change pipeline status dynamically.
 - **Delete**: Remove leads with automatic cascading deletion of all associated notes.
 
 ### 2. Activity Notes per Lead
+
 - Attach unlimited chronological activity notes to each lead (`id`, `leadId`, `content`, `createdAt`).
 - Retrieve all notes per lead (ordered newest first).
 - Gracefully handles leads with zero notes.
 - Individual note deletion.
 
 ### 3. Web Portal (React Frontend)
+
 - **Leads List Page**:
   - Live search input by name or email with quick clear.
   - Interactive status tabs (`All`, `New`, `Contacted`, `Qualified`, `Lost`) with visual indicators.
@@ -37,25 +40,28 @@ A modern, production-ready **Lead Management Portal** backed by a REST API. Buil
   - Optional first interaction note recorded simultaneously upon creation.
 
 ### 4. API Endpoints
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/leads?search=&status=&page=&limit=` | Get leads with search, status filter, and pagination |
-| `POST` | `/api/leads` | Create a new lead |
-| `GET` | `/api/leads/:id` | Get single lead by ID |
-| `PATCH` | `/api/leads/:id` | Update lead fields (`name`, `email`, `phone`, `status`) |
-| `DELETE` | `/api/leads/:id` | Delete a lead and cascade delete its notes |
-| `GET` | `/api/leads/:id/notes` | Get all notes for a specific lead |
-| `POST` | `/api/leads/:id/notes` | Add a note to a specific lead |
-| `DELETE` | `/api/leads/:id/notes/:noteId` | Delete an individual note |
-| `GET` | `/api/leads/stats` | Get aggregate pipeline metrics |
+
+| Method     | Endpoint                                    | Description                                                     |
+| ---------- | ------------------------------------------- | --------------------------------------------------------------- |
+| `GET`    | `/api/leads?search=&status=&page=&limit=` | Get leads with search, status filter, and pagination            |
+| `POST`   | `/api/leads`                              | Create a new lead                                               |
+| `GET`    | `/api/leads/:id`                          | Get single lead by ID                                           |
+| `PATCH`  | `/api/leads/:id`                          | Update lead fields (`name`, `email`, `phone`, `status`) |
+| `DELETE` | `/api/leads/:id`                          | Delete a lead and cascade delete its notes                      |
+| `GET`    | `/api/leads/:id/notes`                    | Get all notes for a specific lead                               |
+| `POST`   | `/api/leads/:id/notes`                    | Add a note to a specific lead                                   |
+| `DELETE` | `/api/leads/:id/notes/:noteId`            | Delete an individual note                                       |
+| `GET`    | `/api/leads/stats`                        | Get aggregate pipeline metrics                                  |
 
 ### 5. Validation & Error Handling
+
 - Strict RFC 5322 email validation.
 - All required fields validated (`name` min 2 chars, `email`, `phone`, `content`).
 - Standardized HTTP status codes: `200 OK`, `201 Created`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Internal Server Error`.
 - Structured JSON error responses: `{ "error": "Error message", "details": ... }`.
 
 ### 6. 🎁 Bonus Features Included
+
 - ✅ **Pagination**: Configurable `page` and `limit` query parameters with total count and page metadata.
 - ✅ **Basic Authentication**: Middleware supporting HTTP Basic Auth (`admin:admin123`, toggleable via `BASIC_AUTH_ENABLED`).
 - ✅ **Automated Test Suite**: 27 unit tests with Jest + Supertest running on isolated in-memory SQLite (`100% passing`).
@@ -67,13 +73,13 @@ A modern, production-ready **Lead Management Portal** backed by a REST API. Buil
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
-|---|---|
-| **Frontend** | React 18, TypeScript, Vite, Lucide Icons, Custom Design System CSS |
-| **Backend** | Node.js (v18+ / v20+ / v22+ / v24+), Express 5, TypeScript |
-| **Database** | SQLite (with WAL mode, indexes, foreign keys, and cascading delete) |
-| **Testing** | Jest, Supertest, ts-jest |
-| **Dev Tools** | Concurrently, Docker, Docker Compose |
+| Layer               | Technologies                                                        |
+| ------------------- | ------------------------------------------------------------------- |
+| **Frontend**  | React 18, TypeScript, Vite, Lucide Icons, Custom Design System CSS  |
+| **Backend**   | Node.js (v18+ / v20+ / v22+ / v24+), Express 5, TypeScript          |
+| **Database**  | SQLite (with WAL mode, indexes, foreign keys, and cascading delete) |
+| **Testing**   | Jest, Supertest, ts-jest                                            |
+| **Dev Tools** | Concurrently, Docker, Docker Compose                                |
 
 ---
 
@@ -152,6 +158,7 @@ npm run dev
 ```
 
 Both servers will start concurrently:
+
 - 🌐 **Frontend Web Portal**: [http://localhost:5173/](http://localhost:5173/)
 - 📡 **Backend REST API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
 
@@ -168,6 +175,7 @@ npm test
 ```
 
 ### Test Results (27 Passing Tests)
+
 ```
 PASS tests/leads.test.ts
   Leads API Endpoints
@@ -222,14 +230,17 @@ Tests:       27 passed, 27 total
 ## 📦 Production Build & Run
 
 ### Build Both Packages
+
 ```bash
 npm run build
 ```
 
 ### Start Production Server
+
 ```bash
 npm start
 ```
+
 The Express server on port 3000 will serve both the backend REST API (`/api/*`) and the built React frontend (`/*`).
 
 ---
@@ -265,6 +276,7 @@ curl -X GET "http://localhost:3000/api/leads?page=1&limit=5"
 ```
 
 **Example Response (`200 OK`):**
+
 ```json
 {
   "data": [
@@ -305,6 +317,7 @@ curl -X POST "http://localhost:3000/api/leads" \
 ```
 
 **Response (`201 Created`):**
+
 ```json
 {
   "id": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
@@ -326,6 +339,7 @@ curl -X GET "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "id": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
@@ -363,6 +377,7 @@ curl -X POST "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7
 ```
 
 **Response (`201 Created`):**
+
 ```json
 {
   "id": "c33a9b87-8783-4ea7-8780-486afefb2ba9",
@@ -381,6 +396,7 @@ curl -X GET "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e
 ```
 
 **Response (`200 OK`):**
+
 ```json
 [
   {
@@ -401,6 +417,7 @@ curl -X DELETE "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "success": true,
@@ -417,6 +434,7 @@ curl -X GET "http://localhost:3000/api/leads/stats"
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "total": 9,

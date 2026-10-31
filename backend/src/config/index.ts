@@ -8,7 +8,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isDev: (process.env.NODE_ENV || 'development') === 'development',
   isTest: process.env.NODE_ENV === 'test',
-  databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'leads.db'),
+  databasePath: process.env.DATABASE_PATH || process.env.DB_PATH || path.join(process.cwd(), 'data', 'leads.db'),
   auth: {
     enabled: process.env.BASIC_AUTH_ENABLED === 'true',
     username: process.env.ADMIN_USERNAME || 'admin',
