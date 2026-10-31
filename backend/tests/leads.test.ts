@@ -236,6 +236,58 @@ describe('Leads API Endpoints', () => {
       expect(res.body.name).toBe('Bruce Wayne'); // Unchanged
     });
 
+    it('should update all lead details (name, email, mobile/phone, status)', async () => {
+      const createRes = await request(app).post('/api/leads').send({
+        name: 'Peter Parker',
+        email: 'peter@dailybugle.com',
+        phone: '123-456-7890',
+        status: 'new',
+      });
+
+      const leadId = createRes.body.id;
+
+      const res = await request(app)
+        .patch(`/api/leads/${leadId}`)
+        .send({
+          name: 'Spider Man',
+          email: 'spidey@avengers.org',
+          mobile: '987-654-3210',
+          status: 'qualified',
+        })
+        .expect(200);
+
+      expect(res.body.id).toBe(leadId);
+      expect(res.body.name).toBe('Spider Man');
+      expect(res.body.email).toBe('spidey@avengers.org');
+      expect(res.body.phone).toBe('987-654-3210');
+      expect(res.body.status).toBe('qualified');
+      expect(res.body.updatedAt).toBeDefined();
+    });
+
+    it('should return 400 when updating with invalid name or phone', async () => {
+      const createRes = await request(app).post('/api/leads').send({
+        name: 'Tony Stark',
+        email: 'tony@stark.com',
+        phone: '555-3000',
+      });
+
+      const leadId = createRes.body.id;
+
+      const resName = await request(app)
+        .patch(`/api/leads/${leadId}`)
+        .send({ name: 'A' })
+        .expect(400);
+
+      expect(resName.body.success).toBe(false);
+
+      const resPhone = await request(app)
+        .patch(`/api/leads/${leadId}`)
+        .send({ phone: '   ' })
+        .expect(400);
+
+      expect(resPhone.body.success).toBe(false);
+    });
+
     it('should return 400 when updating with invalid email', async () => {
       const createRes = await request(app).post('/api/leads').send({
         name: 'Clark Kent',

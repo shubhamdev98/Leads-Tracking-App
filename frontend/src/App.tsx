@@ -4,6 +4,7 @@ import { StatsCards } from './components/StatsCards';
 import { LeadsList } from './components/LeadsList';
 import { LeadDetail } from './components/LeadDetail';
 import { CreateLeadPage } from './components/CreateLeadPage';
+import { EditLeadModal } from './components/EditLeadModal';
 import { Toast, ToastMessage } from './components/Toast';
 import { Lead, Stats, Pagination } from './types';
 import { api } from './api/client';
@@ -11,6 +12,7 @@ import { api } from './api/client';
 export const App: React.FC = () => {
   const [view, setView] = useState<'list' | 'detail' | 'create'>('list');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
@@ -168,6 +170,7 @@ export const App: React.FC = () => {
               onStatusFilterChange={handleStatusFilterChange}
               onPageChange={handlePageChange}
               onSelectLead={handleSelectLead}
+              onEditLead={(lead) => setEditingLead(lead)}
               onDeleteLead={handleDeleteLeadFromList}
               onNavigateCreate={handleNavigateCreate}
             />
@@ -179,6 +182,10 @@ export const App: React.FC = () => {
             leadId={selectedLeadId}
             onBack={handleBackToList}
             onLeadDeleted={handleLeadDeleted}
+            onLeadUpdated={() => {
+              fetchLeads();
+              fetchStats();
+            }}
             onToast={addToast}
           />
         )}
@@ -191,6 +198,20 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+
+      {editingLead && (
+        <EditLeadModal
+          lead={editingLead}
+          isOpen={true}
+          onClose={() => setEditingLead(null)}
+          onLeadUpdated={() => {
+            fetchLeads();
+            fetchStats();
+            setEditingLead(null);
+          }}
+          onToast={addToast}
+        />
+      )}
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
     </div>

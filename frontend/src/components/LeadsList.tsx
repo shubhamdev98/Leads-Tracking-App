@@ -11,6 +11,7 @@ interface LeadsListProps {
   onStatusFilterChange: (status: string) => void;
   onPageChange: (page: number) => void;
   onSelectLead: (lead: Lead) => void;
+  onEditLead?: (lead: Lead) => void;
   onDeleteLead: (lead: Lead) => void;
   onNavigateCreate: () => void;
 }
@@ -24,6 +25,7 @@ export const LeadsList: React.FC<LeadsListProps> = ({
   onStatusFilterChange,
   onPageChange,
   onSelectLead,
+  onEditLead,
   onDeleteLead,
   onNavigateCreate,
 }) => {
@@ -179,6 +181,17 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                         >
                           View
                         </button>
+                        {onEditLead && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            style={{ height: '28px', padding: '0 8px', fontSize: '12px' }}
+                            onClick={() => onEditLead(lead)}
+                            id={`btn-edit-${lead.id}`}
+                          >
+                            Edit
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="btn-icon btn-icon-danger"

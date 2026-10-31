@@ -509,10 +509,15 @@ curl -X GET "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e
 
 #### 4. Update Lead (PATCH)
 
+Supports partial or complete updates for lead details (`name`, `email`, `phone` / `mobile`, `status`):
+
 ```bash
 curl -X PATCH "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0" \
   -H "Content-Type: application/json" \
   -d '{
+    "name": "Evelyn Harper",
+    "email": "evelyn.harper@newdomain.com",
+    "phone": "+1 (555) 987-6543",
     "status": "qualified"
   }'
 ```
@@ -523,8 +528,8 @@ curl -X PATCH "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a
 {
   "id": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
   "name": "Evelyn Harper",
-  "email": "evelyn@harperdesign.co",
-  "phone": "+1 (555) 345-6789",
+  "email": "evelyn.harper@newdomain.com",
+  "phone": "+1 (555) 987-6543",
   "status": "qualified",
   "createdAt": "2026-10-31T07:36:30.712Z",
   "updatedAt": "2026-10-31T07:40:15.118Z"

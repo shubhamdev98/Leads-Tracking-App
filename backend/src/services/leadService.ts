@@ -33,7 +33,8 @@ export function validateCreateLead(dto: CreateLeadDto): { name: string; email: s
     errors.email = 'Valid email address is required';
   }
 
-  if (!dto.phone || typeof dto.phone !== 'string' || dto.phone.trim().length === 0) {
+  const rawPhone = dto.phone !== undefined ? dto.phone : dto.mobile;
+  if (!rawPhone || typeof rawPhone !== 'string' || rawPhone.trim().length === 0) {
     errors.phone = 'Phone number is required';
   }
 
@@ -53,7 +54,7 @@ export function validateCreateLead(dto: CreateLeadDto): { name: string; email: s
   return {
     name: dto.name.trim(),
     email: dto.email.trim().toLowerCase(),
-    phone: dto.phone.trim(),
+    phone: (rawPhone as string).trim(),
     status,
   };
 }
@@ -87,12 +88,13 @@ export function validateUpdateLead(dto: UpdateLeadDto): Partial<Omit<Lead, 'id' 
     }
   }
 
-  if (dto.phone !== undefined) {
+  const phoneValue = dto.phone !== undefined ? dto.phone : dto.mobile;
+  if (phoneValue !== undefined) {
     hasField = true;
-    if (typeof dto.phone !== 'string' || dto.phone.trim().length === 0) {
+    if (typeof phoneValue !== 'string' || phoneValue.trim().length === 0) {
       errors.phone = 'Phone number cannot be empty';
     } else {
-      updates.phone = dto.phone.trim();
+      updates.phone = phoneValue.trim();
     }
   }
 

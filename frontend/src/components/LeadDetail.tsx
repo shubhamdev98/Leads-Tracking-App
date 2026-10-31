@@ -10,12 +10,15 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
+  Pencil,
 } from 'lucide-react';
+import { EditLeadModal } from './EditLeadModal';
 
 interface LeadDetailProps {
   leadId: string;
   onBack: () => void;
   onLeadDeleted: (id: string) => void;
+  onLeadUpdated?: (lead: Lead) => void;
   onToast: (msg: string, type: 'success' | 'danger' | 'info') => void;
 }
 
@@ -23,6 +26,7 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
   leadId,
   onBack,
   onLeadDeleted,
+  onLeadUpdated,
   onToast,
 }) => {
   const [lead, setLead] = useState<Lead | null>(null);
@@ -36,6 +40,7 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
   const [noteError, setNoteError] = useState<string | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deletingLead, setDeletingLead] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const fetchLeadData = useCallback(async () => {
     try {
@@ -170,7 +175,20 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
       <div className="lead-detail-grid">
         <aside className="card lead-profile-card">
           <div className="profile-header">
-            <h2 className="lead-title" id="lead-detail-name">{lead.name}</h2>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
+              <h2 className="lead-title" id="lead-detail-name" style={{ margin: 0 }}>{lead.name}</h2>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setIsEditModalOpen(true)}
+                id="btn-edit-lead-header"
+                title="Edit Lead Details"
+                style={{ flexShrink: 0 }}
+              >
+                <Pencil size={12} />
+                <span>Edit</span>
+              </button>
+            </div>
             <div className="profile-badge-row">
               <span className={`status-badge status-${lead.status}`} id="lead-detail-badge">
                 {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
@@ -266,7 +284,17 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
             </div>
           )}
 
-          <div className="card-footer-actions">
+          <div className="card-footer-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ width: '100%' }}
+              onClick={() => setIsEditModalOpen(true)}
+              id="btn-edit-lead-profile"
+            >
+              <Pencil size={14} />
+              <span>Edit Details</span>
+            </button>
             <button
               type="button"
               className="btn btn-danger"
@@ -370,6 +398,16 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
           </div>
         </section>
       </div>
+      <EditLeadModal
+        lead={lead}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onLeadUpdated={(updated) => {
+          setLead(updated);
+          if (onLeadUpdated) onLeadUpdated(updated);
+        }}
+        onToast={onToast}
+      />
     </>
   );
 };

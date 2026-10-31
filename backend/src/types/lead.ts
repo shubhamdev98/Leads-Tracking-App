@@ -26,7 +26,8 @@ export interface LeadWithNotes extends Lead {
 export interface CreateLeadDto {
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
+  mobile?: string;
   status?: LeadStatus;
 }
 
@@ -34,6 +35,7 @@ export interface UpdateLeadDto {
   name?: string;
   email?: string;
   phone?: string;
+  mobile?: string;
   status?: LeadStatus;
 }
 
