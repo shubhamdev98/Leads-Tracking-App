@@ -1,6 +1,6 @@
-# 🚀 LeadFlow — Lead Management Portal & REST API
+# 🚀 LeadFlow — Lead Management Portal (React.js + Node.js Express)
 
-A modern, full-stack **Lead Management Portal** backed by a robust REST API, built with **Node.js**, **Express**, **TypeScript**, **SQLite** (via `better-sqlite3`), and server-rendered **EJS** with dynamic client-side interactions.
+A modern, full-stack **Lead Management Portal** backed by a robust REST API, built with **React.js**, **Node.js**, **Express**, **TypeScript**, and **SQLite** (via `better-sqlite3`).
 
 ---
 
@@ -17,27 +17,27 @@ A modern, full-stack **Lead Management Portal** backed by a robust REST API, bui
 - Individual note deletion.
 - Clean empty states when leads have zero notes.
 
-### 3. Web Portal (Server-rendered EJS + Modern CSS)
-- **Leads List Page (`/leads`)**:
+### 3. Web Portal (React.js Single Page Application)
+- **Leads List Page (`/`)**:
   - Live statistics dashboard (Total, New, Contacted, Qualified, Lost).
-  - Search by name or email with live clear button.
+  - Instant live search by name or email with quick clear button.
   - Status filter tabs with status counters and active pill highlights.
   - Responsive table with custom avatars, formatted timestamps, and quick action icons.
-  - Pagination controls (Previous, page numbers, Next, total counts).
-- **Create Lead Page (`/leads/new`)**:
-  - Polished form with field-level validation and status selector cards.
-- **Lead Detail Page (`/leads/:id`)**:
+  - Full pagination controls (Previous, page numbers, Next, total counts).
+- **Create & Edit Lead Modal**:
+  - Interactive modal dialog with real-time field validation and status selector cards.
+- **Lead Detail View**:
   - Contact cards, instant status dropdown switcher, and edit/delete actions.
-  - Notes activity feed and responsive "Add Note" form.
-- **Edit Lead Page (`/leads/:id/edit`)**:
-  - Pre-filled form to update name, email, phone, and status.
+  - Activity timeline notes feed and inline "Add Note" form with real-time updates.
+- **Interactive Feedback**:
+  - Toast notifications on create, update, delete, and note actions.
 
-### 4. 🎁 Bonus Features Implemented
+### 4. 🎁 Bonus Features
+- ✅ **React.js Frontend**: Modern, reactive SPA with Lucide icons and clean CSS design system.
 - ✅ **TypeScript**: Fully typed domain models, controllers, and services with `strict: true`.
 - ✅ **Pagination**: Configurable `page` and `limit` query parameters with pagination metadata.
 - ✅ **Basic Authentication**: Configurable HTTP Basic Auth middleware for both API and portal.
 - ✅ **Unit & Integration Tests**: 27 Jest + Supertest test cases covering routes, edge cases, and validations.
-- ✅ **Containerization**: Production-ready `Dockerfile` and `docker-compose.yml`.
 - ✅ **Database Seeding**: Built-in CLI seed script (`npm run seed`) and empty-state UI buttons.
 
 ---
@@ -46,13 +46,11 @@ A modern, full-stack **Lead Management Portal** backed by a robust REST API, bui
 
 | Layer | Technology |
 |---|---|
-| **Runtime** | Node.js (v18+ / v20+ / v22+ / v24+) |
+| **Frontend** | React.js (v19) + Vite + Lucide Icons + Modern CSS |
+| **Backend** | Node.js + Express 5 |
 | **Language** | TypeScript (ES2022) |
-| **Framework** | Express 5 |
 | **Database** | SQLite via `better-sqlite3` (with WAL mode & Foreign Key constraints) |
-| **View Engine** | Server-rendered EJS with responsive Vanilla CSS Design System |
 | **Testing** | Jest + Supertest (In-memory SQLite test suites) |
-| **Container** | Docker & Docker Compose |
 
 ---
 
@@ -80,7 +78,7 @@ PORT=3000
 NODE_ENV=development
 DATABASE_PATH=./data/leads.db
 
-# Optional Basic Authentication
+# Optional Basic Authentication (toggleable)
 BASIC_AUTH_ENABLED=false
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
@@ -101,8 +99,15 @@ npm run dev
 ```
 
 The portal and API will be available at:
-- 🌐 **Web Portal**: [http://localhost:3000/leads](http://localhost:3000/leads)
+- 🌐 **React Web Portal**: [http://localhost:3000/](http://localhost:3000/)
 - 📡 **REST API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
+
+### 5. Build for Production
+
+```bash
+npm run build
+npm start
+```
 
 ---
 
@@ -118,25 +123,6 @@ npm test
 - **`tests/leads.test.ts`**: CRUD operations, required field validations, email regex validation, status validation, search filters, pagination.
 - **`tests/notes.test.ts`**: Note addition, retrieval, missing lead 404, empty note 400, and foreign key cascading deletion.
 - **`tests/auth.test.ts`**: Basic Auth challenges, 401 unauthorized handling, `WWW-Authenticate` headers, and authorized 200 responses.
-
----
-
-## 📦 Docker Deployment
-
-Run the portal in a containerized production environment:
-
-```bash
-# Build and start container
-docker compose up --build -d
-
-# View logs
-docker compose logs -f
-
-# Stop container
-docker compose down
-```
-
-The SQLite database persists in the Docker volume `lead_data`.
 
 ---
 
@@ -236,15 +222,6 @@ curl -X GET "http://localhost:3000/api/leads/59cb4a52-9dae-4cf7-9a40-2c7009e4526
 }
 ```
 
-If not found:
-```json
-// Status: 404 Not Found
-{
-  "success": false,
-  "error": "Lead with ID 'non-existent-id' not found"
-}
-```
-
 ---
 
 #### 4. Update a Lead (PATCH)
@@ -337,15 +314,13 @@ curl -X POST "http://localhost:3000/api/leads/1ad21275-48ac-4091-9aae-d505f69a76
 
 ---
 
-### 🔒 Basic Authentication Example (Bonus Feature)
+### 🔒 Basic Authentication Example (Optional Bonus Feature)
 
 When `BASIC_AUTH_ENABLED=true` in `.env`:
 
 ```bash
 # Request without credentials -> 401 Unauthorized
 curl -i -X GET "http://localhost:3000/api/leads"
-# Returns: HTTP/1.1 401 Unauthorized
-# WWW-Authenticate: Basic realm="Lead Management Portal"
 
 # Request with Basic Auth credentials (-u admin:admin123) -> 200 OK
 curl -u admin:admin123 -X GET "http://localhost:3000/api/leads"
@@ -353,38 +328,40 @@ curl -u admin:admin123 -X GET "http://localhost:3000/api/leads"
 
 ---
 
-## 🏛️ Project Architecture & Design Decisions
+## 🏛️ Project Structure
 
 ```
 Interview/
-├── src/
-│   ├── config/             # Centralized environment & app config
-│   ├── types/              # Domain models, DTOs & filter interfaces
-│   ├── db/                 # SQLite connection, schema initialization & seed script
+├── client/                 # React.js SPA Frontend
+│   ├── index.html          # HTML entry point
+│   ├── tsconfig.json       # React TypeScript config
+│   └── src/
+│       ├── main.tsx        # React root mounting
+│       ├── App.tsx         # Main application container
+│       ├── index.css       # Design system & styles
+│       ├── types.ts        # Frontend domain interfaces
+│       ├── api/            # API client (fetch wrapper)
+│       └── components/     # Header, Stats, LeadsList, LeadDetail, Modal, Toast
+├── src/                    # Backend API (Node.js + Express)
+│   ├── config/             # Centralized environment config
+│   ├── types/              # Backend DTOs & domain models
+│   ├── db/                 # SQLite connection & seed script
 │   ├── repositories/       # Data Access Layer (LeadRepository, NoteRepository)
-│   ├── services/           # Business Logic & Input Validation (LeadService, NoteService)
-│   ├── middleware/         # Basic Auth, centralized error handling & 404 handler
-│   ├── controllers/        # REST API controllers & Server-rendered Portal controllers
-│   ├── routes/             # REST API routes (/api/...) & Web Portal routes (/leads/...)
-│   ├── views/              # EJS templates (layouts, index, show, new, edit, error)
-│   ├── public/             # CSS design system & client interactivity JS
-│   ├── app.ts              # Express application factory (exported for tests)
-│   └── server.ts           # HTTP server startup & graceful shutdown
-├── tests/
+│   ├── services/           # Business Logic & Validation (LeadService, NoteService)
+│   ├── middleware/         # Basic Auth, Error Handler, 404 Handler
+│   ├── controllers/        # REST API controllers
+│   ├── routes/             # Express API routes
+│   ├── app.ts              # Express application setup
+│   └── server.ts           # Server entry point & Vite dev middleware
+├── tests/                  # Automated Test Suite (Jest + Supertest)
 │   ├── helpers/            # In-memory test DB & test app factory
-│   ├── leads.test.ts       # Leads CRUD & validation test suite
-│   ├── notes.test.ts       # Notes CRUD & cascading delete test suite
-│   └── auth.test.ts        # Basic authentication test suite
-├── Dockerfile              # Production Alpine container
-├── docker-compose.yml      # Container orchestration
+│   ├── leads.test.ts       # Leads CRUD & validation tests
+│   ├── notes.test.ts       # Notes CRUD & cascading delete tests
+│   └── auth.test.ts        # Basic authentication tests
+├── vite.config.ts          # Vite build & proxy configuration
+├── tsconfig.json           # Backend TypeScript configuration
 └── package.json
 ```
-
-### Key Architectural Strengths:
-1. **Layered Architecture**: Strict separation of concerns (Repositories $\rightarrow$ Services $\rightarrow$ Controllers $\rightarrow$ Routes).
-2. **Robust Foreign Keys**: SQLite configured with `PRAGMA foreign_keys = ON;` and `ON DELETE CASCADE` ensures data integrity between leads and notes.
-3. **Graceful Error Handling**: Custom `ValidationError` (400), `NotFoundError` (404), and `UnauthorizedError` (401) with structured JSON responses for APIs and styled error pages for browsers.
-4. **Performance**: SQLite WAL (`Write-Ahead Logging`) mode enabled for concurrent reads and writes.
 
 ---
 

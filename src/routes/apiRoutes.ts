@@ -12,6 +12,7 @@ router.use(basicAuth);
 
 // Leads API Endpoints
 router.get('/leads', leadController.getLeads);
+router.get('/leads/stats', leadController.getStats);
 router.post('/leads', leadController.createLead);
 router.get('/leads/:id', leadController.getLeadById);
 router.patch('/leads/:id', leadController.updateLead);

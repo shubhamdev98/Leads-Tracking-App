@@ -84,4 +84,13 @@ export class LeadApiController {
       next(err);
     }
   };
+
+  getStats = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const stats = this.leadService.getStats();
+      res.status(200).json(stats);
+    } catch (err) {
+      next(err);
+    }
+  };
 }
