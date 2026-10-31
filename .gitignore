@@ -4,8 +4,10 @@ dist/
 **/dist/
 data/*.db
 data/*.db*
+backend/data/*.db*
 *.db
 .env
+**/.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

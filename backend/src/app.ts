@@ -10,20 +10,17 @@ import { config } from './config';
 export function createApp(): Application {
   const app = express();
 
-  // Middleware
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Request logging
   if (!config.isTest) {
     app.use(morgan('dev'));
   }
 
-  // API Root information
-  app.get('/', (req: Request, res: Response) => {
+  app.get('/api', (req: Request, res: Response) => {
     res.status(200).json({
-      name: 'Lead Management API',
+      name: 'Leads Tracking App API',
       version: '1.0.0',
       status: 'active',
       endpoints: {
@@ -35,10 +32,8 @@ export function createApp(): Application {
     });
   });
 
-  // Mount REST API Routes
   app.use('/api', apiRoutes);
 
-  // Serve React frontend if dist exists (production mode)
   const frontendDist = path.resolve(__dirname, '../../frontend/dist');
   if (fs.existsSync(frontendDist)) {
     app.use(express.static(frontendDist));
@@ -51,12 +46,13 @@ export function createApp(): Application {
       }
       next();
     });
+  } else {
+    app.get('/', (req: Request, res: Response) => {
+      res.redirect('/api');
+    });
   }
 
-  // 404 handler
   app.use(notFoundHandler);
-
-  // Centralized Error Handler
   app.use(errorHandler);
 
   return app;

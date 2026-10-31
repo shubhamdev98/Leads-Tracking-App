@@ -118,13 +118,14 @@ export function createSqliteDatabase(dbPath?: string): ISqliteDatabase {
     },
   };
 
-  // Enable foreign key constraints
   dbWrapper.pragma('foreign_keys = ON');
-
-  // Initialize schema
   initSchema(dbWrapper);
 
   return dbWrapper;
+}
+
+export function setDatabase(db: ISqliteDatabase | null): void {
+  globalDbInstance = db;
 }
 
 export function getDatabase(customPath?: string): ISqliteDatabase {

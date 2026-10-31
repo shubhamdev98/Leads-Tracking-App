@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { config } from '../config';
 
 export function basicAuth(req: Request, res: Response, next: NextFunction): void {
-  // If basic auth is disabled in configuration, allow all requests
   if (!config.auth.enabled) {
     return next();
   }

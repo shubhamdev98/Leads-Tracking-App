@@ -1,18 +1,13 @@
 import { randomUUID } from 'crypto';
 import { initDatabaseEngine, getDatabase, closeDatabase } from './database';
-import { LeadRepository } from '../repositories/leadRepository';
-import { NoteRepository } from '../repositories/noteRepository';
+import { createLeadRecord } from '../repositories/leadRepository';
+import { createNoteRecord } from '../repositories/noteRepository';
 import { Lead, Note } from '../types/lead';
 
 export async function seedDatabase(): Promise<void> {
   await initDatabaseEngine();
   const db = getDatabase();
-  const leadRepo = new LeadRepository(db);
-  const noteRepo = new NoteRepository(db);
 
-  console.log('Seeding database with sample leads and notes...');
-
-  // Sample leads data
   const sampleLeads: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>[] = [
     {
       name: 'Sarah Connor',
@@ -87,7 +82,6 @@ export async function seedDatabase(): Promise<void> {
   const now = Date.now();
 
   sampleLeads.forEach((leadData, index) => {
-    // Stagger creation dates slightly
     const createdDate = new Date(now - (sampleLeads.length - index) * 3600 * 1000 * 24).toISOString();
     const leadId = randomUUID();
 
@@ -101,9 +95,8 @@ export async function seedDatabase(): Promise<void> {
       updatedAt: createdDate,
     };
 
-    leadRepo.create(lead);
+    createLeadRecord(lead, db);
 
-    // Add notes for this lead
     const notesContent = sampleNotesByStatus[lead.status] || ['Initial contact recorded.'];
     notesContent.forEach((content, noteIndex) => {
       const noteDate = new Date(new Date(createdDate).getTime() + (noteIndex + 1) * 3600 * 1000 * 3).toISOString();
@@ -113,16 +106,11 @@ export async function seedDatabase(): Promise<void> {
         content,
         createdAt: noteDate,
       };
-      noteRepo.create(note);
+      createNoteRecord(note, db);
     });
   });
 
-  const totalLeads = leadRepo.count();
-  const totalNotes = noteRepo.count();
-
-  console.log(`Database seeded successfully!`);
-  console.log(`- Created ${sampleLeads.length} leads (Total in DB: ${totalLeads})`);
-  console.log(`- Created associated notes (Total in DB: ${totalNotes})`);
+  console.log('Database seeded successfully.');
 }
 
 if (require.main === module) {

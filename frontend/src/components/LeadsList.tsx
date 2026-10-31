@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lead, Pagination } from '../types';
-import { Search, X, Mail, Phone, Eye, Trash2, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface LeadsListProps {
   leads: Lead[];
@@ -31,26 +31,30 @@ export const LeadsList: React.FC<LeadsListProps> = ({
     <>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Leads Management</h1>
-          <p className="page-subtitle">Track, qualify, and convert customer leads with real-time updates</p>
+          <h1 className="page-title">Leads</h1>
+          <p className="page-subtitle">Manage and track your leads.</p>
         </div>
         <div className="page-actions">
-          <button type="button" className="btn btn-primary" onClick={onNavigateCreate} id="btn-add-lead-main">
-            <UserPlus size={18} strokeWidth={2.5} />
-            <span>Create Lead</span>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={onNavigateCreate}
+            id="btn-add-lead-main"
+          >
+            <Plus size={15} strokeWidth={2.2} />
+            <span>Add Lead</span>
           </button>
         </div>
       </div>
 
-      {/* Search & Filter Card */}
       <div className="card filter-card">
         <div className="filter-form">
           <div className="search-input-wrapper">
-            <Search className="search-icon" size={18} />
+            <Search className="search-icon" size={15} />
             <input
               type="text"
               id="search-input"
-              className="form-input search-input"
+              className="search-input"
               placeholder="Search leads by name or email..."
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -63,7 +67,7 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                 onClick={() => onSearchChange('')}
                 title="Clear search"
               >
-                <X size={16} />
+                <X size={14} />
               </button>
             )}
           </div>
@@ -76,32 +80,27 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                 className={`status-tab ${statusFilter === st ? 'active' : ''}`}
                 onClick={() => onStatusFilterChange(st)}
               >
-                {st !== 'all' && <span className={`tab-dot dot-${st}`} />}
-                <span>{st.charAt(0).toUpperCase() + st.slice(1)}</span>
+                {st.charAt(0).toUpperCase() + st.slice(1)}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Leads Table Card */}
-      <div className="card table-card">
+      <div className="table-card">
         {leads.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">
-              <UserPlus size={36} />
-            </div>
             <h3 className="empty-title">No leads found</h3>
             <p className="empty-description">
               {search || statusFilter !== 'all'
-                ? 'No leads match your current search criteria. Try modifying or clearing your filters.'
-                : 'Get started by creating your first customer lead.'}
+                ? 'No leads match your current search criteria. Try modifying your search or filters.'
+                : 'Get started by creating your first lead.'}
             </p>
             <div className="empty-actions">
               {(search || statusFilter !== 'all') && (
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary btn-sm"
                   onClick={() => {
                     onSearchChange('');
                     onStatusFilterChange('all');
@@ -110,8 +109,13 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                   Clear Filters
                 </button>
               )}
-              <button type="button" className="btn btn-primary" onClick={onNavigateCreate} id="btn-empty-add-lead">
-                Create First Lead
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={onNavigateCreate}
+                id="btn-empty-add-lead"
+              >
+                Add Lead
               </button>
             </div>
           </div>
@@ -120,105 +124,79 @@ export const LeadsList: React.FC<LeadsListProps> = ({
             <table className="leads-table">
               <thead>
                 <tr>
-                  <th>Lead</th>
-                  <th>Contact</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
                   <th>Status</th>
-                  <th>Created</th>
+                  <th>Created Date</th>
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {leads.map((lead) => {
-                  const initials = lead.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .slice(0, 2)
-                    .join('')
-                    .toUpperCase();
-
-                  return (
-                    <tr key={lead.id} className="lead-row" id={`lead-row-${lead.id}`}>
-                      <td className="lead-info-col">
-                        <div className="lead-identity">
-                          <div className="lead-avatar">{initials}</div>
-                          <div>
-                            <span
-                              className="lead-name-link"
-                              onClick={() => onSelectLead(lead)}
-                              id={`lead-name-${lead.id}`}
-                            >
-                              {lead.name}
-                            </span>
-                            <span className="lead-id-sub">ID: {lead.id.substring(0, 8)}...</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="lead-contact-col">
-                        <div className="contact-line">
-                          <Mail size={14} />
-                          <a href={`mailto:${lead.email}`} className="contact-link">
-                            {lead.email}
-                          </a>
-                        </div>
-                        <div className="contact-line">
-                          <Phone size={14} />
-                          <a href={`tel:${lead.phone}`} className="contact-link">
-                            {lead.phone}
-                          </a>
-                        </div>
-                      </td>
-                      <td className="lead-status-col">
-                        <span className={`status-badge status-${lead.status}`}>
-                          <span className="badge-dot" />
-                          {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="lead-date-col">
-                        <span className="date-text">
-                          {new Date(lead.createdAt).toLocaleDateString(undefined, {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </span>
-                        <span className="time-sub">
-                          {new Date(lead.createdAt).toLocaleTimeString(undefined, {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </td>
-                      <td className="lead-actions-col text-right">
-                        <div className="actions-group">
-                          <button
-                            type="button"
-                            className="btn-icon"
-                            title="View Lead Details & Notes"
-                            onClick={() => onSelectLead(lead)}
-                            id={`btn-view-${lead.id}`}
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-icon btn-icon-danger"
-                            title="Delete Lead"
-                            onClick={() => onDeleteLead(lead)}
-                            id={`btn-delete-${lead.id}`}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {leads.map((lead) => (
+                  <tr key={lead.id} className="lead-row" id={`lead-row-${lead.id}`}>
+                    <td className="lead-name-cell">
+                      <span
+                        className="lead-name-link"
+                        onClick={() => onSelectLead(lead)}
+                        id={`lead-name-${lead.id}`}
+                      >
+                        {lead.name}
+                      </span>
+                    </td>
+                    <td className="lead-email-cell">
+                      <a href={`mailto:${lead.email}`} className="contact-link">
+                        {lead.email}
+                      </a>
+                    </td>
+                    <td className="lead-phone-cell">
+                      <a href={`tel:${lead.phone}`} className="contact-link">
+                        {lead.phone}
+                      </a>
+                    </td>
+                    <td className="lead-status-cell">
+                      <span className={`status-badge status-${lead.status}`}>
+                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="lead-date-cell">
+                      <span className="date-text">
+                        {new Date(lead.createdAt).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </td>
+                    <td className="lead-actions-cell text-right">
+                      <div className="actions-group">
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{ height: '28px', padding: '0 8px', fontSize: '12px' }}
+                          onClick={() => onSelectLead(lead)}
+                          id={`btn-view-${lead.id}`}
+                        >
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-icon btn-icon-danger"
+                          title="Delete Lead"
+                          onClick={() => onDeleteLead(lead)}
+                          id={`btn-delete-${lead.id}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
 
-        {/* Pagination Controls */}
         {leads.length > 0 && (
           <div className="pagination-wrapper">
             <div className="pagination-info">
@@ -235,7 +213,7 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                   disabled={!pagination.hasPrevPage}
                   onClick={() => onPageChange(pagination.page - 1)}
                 >
-                  <ChevronLeft size={16} /> Previous
+                  <ChevronLeft size={14} /> Previous
                 </button>
 
                 <div className="page-pills">
@@ -273,7 +251,7 @@ export const LeadsList: React.FC<LeadsListProps> = ({
                   disabled={!pagination.hasNextPage}
                   onClick={() => onPageChange(pagination.page + 1)}
                 >
-                  Next <ChevronRight size={16} />
+                  Next <ChevronRight size={14} />
                 </button>
               </div>
             )}

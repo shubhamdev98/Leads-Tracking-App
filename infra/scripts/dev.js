@@ -1,29 +1,24 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-console.log('========================================================');
-console.log('🚀 Starting Lead Management Portal (Fullstack)');
-console.log('   - Backend API: http://localhost:3000/api/leads');
-console.log('   - Frontend UI: http://localhost:5173/');
-console.log('========================================================\n');
+console.log('Starting development servers: Frontend: http://localhost:5173 | Backend: http://localhost:3000');
 
 const isWindows = process.platform === 'win32';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
 const backend = spawn(npmCmd, ['run', 'dev'], {
-  cwd: path.resolve(__dirname, '../backend'),
+  cwd: path.resolve(__dirname, '../../backend'),
   stdio: 'inherit',
   shell: true,
 });
 
 const frontend = spawn(npmCmd, ['run', 'dev'], {
-  cwd: path.resolve(__dirname, '../frontend'),
+  cwd: path.resolve(__dirname, '../../frontend'),
   stdio: 'inherit',
   shell: true,
 });
 
 const cleanup = () => {
-  console.log('\n🛑 Stopping servers...');
   try { backend.kill(); } catch (_) {}
   try { frontend.kill(); } catch (_) {}
   process.exit(0);

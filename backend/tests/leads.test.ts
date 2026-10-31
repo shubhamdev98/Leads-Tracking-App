@@ -164,7 +164,7 @@ describe('Leads API Endpoints', () => {
       expect(res.body[0].email).toBe('bob@beta.com');
     });
 
-    it('should support pagination bonus feature when page is requested', async () => {
+    it('should support pagination when page is requested', async () => {
       const res = await request(app)
         .get('/api/leads?page=1&limit=2')
         .expect(200);

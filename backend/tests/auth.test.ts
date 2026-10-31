@@ -2,7 +2,7 @@ import request from 'supertest';
 import { createTestApp } from './helpers/testApp';
 import { config } from '../src/config';
 
-describe('Basic Authentication Middleware (Bonus Feature)', () => {
+describe('Basic Authentication Middleware', () => {
   let app: any;
   let context: any;
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stats } from '../types';
-import { Users, AlertCircle, PhoneCall, CheckCircle, XCircle } from 'lucide-react';
 
 interface StatsCardsProps {
   stats: Stats;
@@ -10,53 +9,24 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
   return (
     <div className="stats-grid">
       <div className="stat-card stat-total">
-        <div className="stat-icon">
-          <Users size={22} />
-        </div>
-        <div className="stat-info">
-          <span className="stat-label">Total Leads</span>
-          <span className="stat-value">{stats.total}</span>
-        </div>
+        <span className="stat-label">Total Leads</span>
+        <span className="stat-value">{stats.total}</span>
       </div>
-
       <div className="stat-card stat-new">
-        <div className="stat-icon">
-          <AlertCircle size={22} />
-        </div>
-        <div className="stat-info">
-          <span className="stat-label">New</span>
-          <span className="stat-value">{stats.new}</span>
-        </div>
+        <span className="stat-label">New</span>
+        <span className="stat-value">{stats.new}</span>
       </div>
-
       <div className="stat-card stat-contacted">
-        <div className="stat-icon">
-          <PhoneCall size={22} />
-        </div>
-        <div className="stat-info">
-          <span className="stat-label">Contacted</span>
-          <span className="stat-value">{stats.contacted}</span>
-        </div>
+        <span className="stat-label">Contacted</span>
+        <span className="stat-value">{stats.contacted}</span>
       </div>
-
       <div className="stat-card stat-qualified">
-        <div className="stat-icon">
-          <CheckCircle size={22} />
-        </div>
-        <div className="stat-info">
-          <span className="stat-label">Qualified</span>
-          <span className="stat-value">{stats.qualified}</span>
-        </div>
+        <span className="stat-label">Qualified</span>
+        <span className="stat-value">{stats.qualified}</span>
       </div>
-
       <div className="stat-card stat-lost">
-        <div className="stat-icon">
-          <XCircle size={22} />
-        </div>
-        <div className="stat-info">
-          <span className="stat-label">Lost</span>
-          <span className="stat-value">{stats.lost}</span>
-        </div>
+        <span className="stat-label">Lost</span>
+        <span className="stat-value">{stats.lost}</span>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 services:
   portal:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: infra/Dockerfile
     ports:
       - "3000:3000"
     environment:

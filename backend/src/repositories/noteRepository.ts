@@ -1,63 +1,70 @@
 import { ISqliteDatabase, getDatabase } from '../db/database';
 import { Note } from '../types/lead';
 
-export class NoteRepository {
-  private _db?: ISqliteDatabase;
+export function createNoteRecord(note: Note, customDb?: ISqliteDatabase): Note {
+  const db = customDb || getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO notes (id, leadId, content, createdAt)
+    VALUES (@id, @leadId, @content, @createdAt)
+  `);
 
-  constructor(private customDb?: ISqliteDatabase) {}
+  stmt.run({
+    id: note.id,
+    leadId: note.leadId,
+    content: note.content,
+    createdAt: note.createdAt,
+  });
 
-  private get db(): ISqliteDatabase {
-    if (!this._db) {
-      this._db = this.customDb || getDatabase();
-    }
-    return this._db;
-  }
-
-  create(note: Note): Note {
-    const stmt = this.db.prepare(`
-      INSERT INTO notes (id, leadId, content, createdAt)
-      VALUES (@id, @leadId, @content, @createdAt)
-    `);
-
-    stmt.run({
-      id: note.id,
-      leadId: note.leadId,
-      content: note.content,
-      createdAt: note.createdAt,
-    });
-
-    return note;
-  }
-
-  findByLeadId(leadId: string): Note[] {
-    const stmt = this.db.prepare(`
-      SELECT * FROM notes
-      WHERE leadId = ?
-      ORDER BY createdAt DESC
-    `);
-    return stmt.all(leadId) as Note[];
-  }
-
-  findById(id: string): Note | null {
-    const stmt = this.db.prepare('SELECT * FROM notes WHERE id = ?');
-    const row = stmt.get(id) as Note | undefined;
-    return row || null;
-  }
-
-  delete(id: string): boolean {
-    const stmt = this.db.prepare('DELETE FROM notes WHERE id = ?');
-    const result = stmt.run(id);
-    return result.changes > 0;
-  }
-
-  deleteByLeadId(leadId: string): number {
-    const stmt = this.db.prepare('DELETE FROM notes WHERE leadId = ?');
-    const result = stmt.run(leadId);
-    return result.changes;
-  }
-
-  count(): number {
-    const row = this.db.prepare('SELECT COUNT(*) as total FROM notes').get() as { total: number };
-    return row ? row.total : 0;
-  }
+  return note;
 }
+
+export function findNotesByLeadId(leadId: string, customDb?: ISqliteDatabase): Note[] {
+  const db = customDb || getDatabase();
+  const stmt = db.prepare(`
+    SELECT * FROM notes
+    WHERE leadId = ?
+    ORDER BY createdAt DESC
+  `);
+  return stmt.all(leadId) as Note[];
+}
+
+export function findNoteById(id: string, customDb?: ISqliteDatabase): Note | null {
+  const db = customDb || getDatabase();
+  const stmt = db.prepare('SELECT * FROM notes WHERE id = ?');
+  const row = stmt.get(id) as Note | undefined;
+  return row || null;
+}
+
+export function deleteNoteRecord(id: string, customDb?: ISqliteDatabase): boolean {
+  const db = customDb || getDatabase();
+  const stmt = db.prepare('DELETE FROM notes WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+export function deleteNotesByLeadId(leadId: string, customDb?: ISqliteDatabase): number {
+  const db = customDb || getDatabase();
+  const stmt = db.prepare('DELETE FROM notes WHERE leadId = ?');
+  const result = stmt.run(leadId);
+  return result.changes;
+}
+
+export function countNotes(customDb?: ISqliteDatabase): number {
+  const db = customDb || getDatabase();
+  const row = db.prepare('SELECT COUNT(*) as total FROM notes').get() as { total: number };
+  return row ? row.total : 0;
+}
+
+export function createNoteRepository(db?: ISqliteDatabase) {
+  return {
+    create: (note: Note) => createNoteRecord(note, db),
+    findByLeadId: (leadId: string) => findNotesByLeadId(leadId, db),
+    findById: (id: string) => findNoteById(id, db),
+    delete: (id: string) => deleteNoteRecord(id, db),
+    deleteByLeadId: (leadId: string) => deleteNotesByLeadId(leadId, db),
+    count: () => countNotes(db),
+  };
+}
+
+export const noteRepository = createNoteRepository();
+export const NoteRepository = createNoteRepository as any;

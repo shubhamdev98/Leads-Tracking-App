@@ -1,26 +1,32 @@
 import { Router } from 'express';
-import { LeadApiController } from '../controllers/leadApiController';
-import { NoteApiController } from '../controllers/noteApiController';
+import {
+  getLeads,
+  getStats,
+  createLead,
+  getLeadById,
+  updateLead,
+  deleteLead,
+} from '../controllers/leadApiController';
+import {
+  getNotes,
+  addNote,
+  deleteNote,
+} from '../controllers/noteApiController';
 import { basicAuth } from '../middleware/auth';
 
 const router = Router();
-const leadController = new LeadApiController();
-const noteController = new NoteApiController();
 
-// Apply optional Basic Authentication if enabled
 router.use(basicAuth);
 
-// Leads API Endpoints
-router.get('/leads', leadController.getLeads);
-router.get('/leads/stats', leadController.getStats);
-router.post('/leads', leadController.createLead);
-router.get('/leads/:id', leadController.getLeadById);
-router.patch('/leads/:id', leadController.updateLead);
-router.delete('/leads/:id', leadController.deleteLead);
+router.get('/leads', getLeads);
+router.get('/leads/stats', getStats);
+router.post('/leads', createLead);
+router.get('/leads/:id', getLeadById);
+router.patch('/leads/:id', updateLead);
+router.delete('/leads/:id', deleteLead);
 
-// Notes API Endpoints
-router.get('/leads/:id/notes', noteController.getNotes);
-router.post('/leads/:id/notes', noteController.addNote);
-router.delete('/leads/:id/notes/:noteId', noteController.deleteNote);
+router.get('/leads/:id/notes', getNotes);
+router.post('/leads/:id/notes', addNote);
+router.delete('/leads/:id/notes/:noteId', deleteNote);
 
 export default router;

@@ -7,13 +7,11 @@ import { CreateLeadPage } from './components/CreateLeadPage';
 import { Toast, ToastMessage } from './components/Toast';
 import { Lead, Stats, Pagination } from './types';
 import { api } from './api/client';
-import { Code, ExternalLink } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [view, setView] = useState<'list' | 'detail' | 'create'>('list');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
 
-  // Leads list state
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -27,7 +25,6 @@ export const App: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
 
-  // Stats state
   const [stats, setStats] = useState<Stats>({
     total: 0,
     new: 0,
@@ -36,7 +33,6 @@ export const App: React.FC = () => {
     lost: 0,
   });
 
-  // Toasts state
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = useCallback((message: string, type: 'success' | 'danger' | 'info' = 'info') => {
@@ -45,14 +41,13 @@ export const App: React.FC = () => {
 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
+    }, 4000);
   }, []);
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
       const data = await api.getStats();
@@ -62,7 +57,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Fetch leads
   const fetchLeads = useCallback(async () => {
     try {
       const res = await api.getLeads({
@@ -79,7 +73,6 @@ export const App: React.FC = () => {
     }
   }, [search, statusFilter, page, addToast]);
 
-  // Initial load & when dependencies change
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
@@ -88,7 +81,6 @@ export const App: React.FC = () => {
     fetchLeads();
   }, [fetchLeads]);
 
-  // Navigation handlers
   const handleSelectLead = (lead: Lead) => {
     setSelectedLeadId(lead.id);
     setView('detail');
@@ -146,11 +138,11 @@ export const App: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    window.scrollTo({ top: 200, behavior: 'smooth' });
+    window.scrollTo({ top: 120, behavior: 'smooth' });
   };
 
   return (
-    <div className="app-layout" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="app-layout">
       <Header
         currentView={view}
         onNavigate={(targetView) => {
@@ -163,7 +155,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      <main className="container" style={{ padding: '32px 24px', flex: 1 }}>
+      <main className="container" style={{ padding: '24px', flex: 1 }}>
         {view === 'list' && (
           <>
             <StatsCards stats={stats} />
@@ -199,24 +191,6 @@ export const App: React.FC = () => {
           />
         )}
       </main>
-
-      <footer className="app-footer">
-        <div className="container footer-content">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="footer-brand">LeadFlow Portal</span>
-            <span>&bull;</span>
-            <span>Fullstack TypeScript &bull; React + Node.js Express + SQLite</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <a href="/api/leads" target="_blank" rel="noreferrer" className="footer-api-link">
-              <Code size={14} />
-              <span>/api/leads</span>
-              <ExternalLink size={12} />
-            </a>
-          </div>
-        </div>
-      </footer>
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
     </div>

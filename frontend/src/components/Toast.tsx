@@ -19,24 +19,25 @@ export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
     <div className="toast-container" id="toast-container">
       {toasts.map((toast) => (
         <div key={toast.id} className={`toast toast-${toast.type}`} id={`toast-${toast.id}`}>
-          {toast.type === 'success' && <CheckCircle2 size={18} style={{ color: 'var(--success)' }} />}
-          {toast.type === 'danger' && <AlertCircle size={18} style={{ color: 'var(--danger)' }} />}
-          {toast.type === 'info' && <Info size={18} style={{ color: 'var(--info)' }} />}
-          <span style={{ flex: 1 }}>{toast.message}</span>
+          {toast.type === 'success' && <CheckCircle2 size={15} style={{ color: '#10B981', flexShrink: 0 }} />}
+          {toast.type === 'danger' && <AlertCircle size={15} style={{ color: '#EF4444', flexShrink: 0 }} />}
+          {toast.type === 'info' && <Info size={15} style={{ color: '#888888', flexShrink: 0 }} />}
+          <span style={{ flex: 1, fontSize: '13px' }}>{toast.message}</span>
           <button
             type="button"
             onClick={() => onDismiss(toast.id)}
             style={{
               background: 'none',
               border: 'none',
-              color: 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.6)',
               cursor: 'pointer',
               padding: '2px',
               display: 'flex',
               alignItems: 'center',
             }}
+            title="Dismiss"
           >
-            <X size={14} />
+            <X size={13} />
           </button>
         </div>
       ))}

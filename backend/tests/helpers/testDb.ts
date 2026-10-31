@@ -1,16 +1,16 @@
-import { createSqliteDatabase, ISqliteDatabase } from '../../src/db/database';
-import { LeadRepository } from '../../src/repositories/leadRepository';
-import { NoteRepository } from '../../src/repositories/noteRepository';
-import { LeadService } from '../../src/services/leadService';
-import { NoteService } from '../../src/services/noteService';
+import { createSqliteDatabase } from '../../src/db/database';
+import { createLeadRepository } from '../../src/repositories/leadRepository';
+import { createNoteRepository } from '../../src/repositories/noteRepository';
+import { createLeadService } from '../../src/services/leadService';
+import { createNoteService } from '../../src/services/noteService';
 
 export function createTestContext() {
   const testDb = createSqliteDatabase(':memory:');
 
-  const leadRepo = new LeadRepository(testDb);
-  const noteRepo = new NoteRepository(testDb);
-  const leadService = new LeadService(leadRepo, noteRepo);
-  const noteService = new NoteService(noteRepo, leadRepo);
+  const leadRepo = createLeadRepository(testDb);
+  const noteRepo = createNoteRepository(testDb);
+  const leadService = createLeadService(leadRepo, noteRepo);
+  const noteService = createNoteService(noteRepo, leadRepo);
 
   return {
     db: testDb,

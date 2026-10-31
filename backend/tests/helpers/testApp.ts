@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
-import { LeadApiController } from '../../src/controllers/leadApiController';
-import { NoteApiController } from '../../src/controllers/noteApiController';
+import { createLeadApiController } from '../../src/controllers/leadApiController';
+import { createNoteApiController } from '../../src/controllers/noteApiController';
 import { errorHandler, notFoundHandler } from '../../src/middleware/errorHandler';
 import { basicAuth } from '../../src/middleware/auth';
 import { createTestContext } from './testDb';
@@ -16,8 +16,8 @@ export function createTestApp(authEnabled = false) {
     app.use(basicAuth);
   }
 
-  const leadController = new LeadApiController(context.leadService);
-  const noteController = new NoteApiController(context.noteService);
+  const leadController = createLeadApiController(context.leadService);
+  const noteController = createNoteApiController(context.noteService);
 
   // Leads
   app.get('/api/leads', leadController.getLeads);

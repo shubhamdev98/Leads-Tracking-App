@@ -1,13 +1,14 @@
 {
   "name": "lead-management-backend",
   "version": "1.0.0",
-  "description": "Lead Management Backend REST API with Express, TypeScript and SQLite",
+  "description": "Leads Tracking App Backend REST API with Express, TypeScript and SQLite",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "tsx src/db/seed.ts",
+    "db:view": "tsx src/db/viewDb.ts",
     "test": "jest --runInBand --detectOpenHandles"
   },
   "keywords": [

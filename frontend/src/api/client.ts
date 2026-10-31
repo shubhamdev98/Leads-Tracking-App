@@ -44,7 +44,6 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 }
 
 export const api = {
-  // Leads
   async getLeads(params: { search?: string; status?: string; page?: number; limit?: number } = {}): Promise<PaginatedLeadsResponse> {
     const query = new URLSearchParams();
     if (params.search) query.set('search', params.search);
@@ -83,7 +82,6 @@ export const api = {
     });
   },
 
-  // Notes
   async getNotes(leadId: string): Promise<Note[]> {
     return request<Note[]>(`/api/leads/${leadId}/notes`);
   },

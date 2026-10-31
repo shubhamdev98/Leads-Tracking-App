@@ -5,8 +5,7 @@ export function errorHandler(
   err: Error | AppError,
   req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
+  _next: NextFunction
 ): void {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
@@ -17,7 +16,6 @@ export function errorHandler(
     return;
   }
 
-  // Handle unexpected internal server errors
   console.error('[Unhandled Error]:', err);
 
   res.status(500).json({

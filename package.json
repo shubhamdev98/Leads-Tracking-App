@@ -2,13 +2,14 @@
   "name": "lead-management-portal",
   "version": "1.0.0",
   "private": true,
-  "description": "Lead Management Portal - Fullstack React + Node.js Express & SQLite REST API",
+  "description": "Leads Tracking App - Fullstack React + Node.js Express & SQLite REST API",
   "scripts": {
-    "postinstall": "node scripts/install.js",
-    "dev": "node scripts/dev.js",
+    "postinstall": "node infra/scripts/install.js",
+    "dev": "node infra/scripts/dev.js",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
     "start": "npm --prefix backend start",
     "seed": "npm --prefix backend run seed",
+    "db:view": "npm --prefix backend run db:view",
     "test": "npm --prefix backend test",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev"
