@@ -1,22 +1,16 @@
 {
   "name": "lead-management-portal",
   "version": "1.0.0",
-  "description": "Lead Management Backend REST API",
+  "private": true,
+  "description": "Lead Management Portal - Fullstack React + Node.js Express & SQLite REST API",
   "scripts": {
-    "dev": "npm --prefix backend run dev",
-    "build": "npm --prefix backend run build",
+    "postinstall": "node scripts/install.js",
+    "dev": "node scripts/dev.js",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
     "start": "npm --prefix backend start",
     "seed": "npm --prefix backend run seed",
-    "test": "npm --prefix backend test"
-  },
-  "keywords": [
-    "leads",
-    "crm",
-    "api",
-    "express",
-    "typescript",
-    "sqlite"
-  ],
-  "author": "",
-  "license": "ISC"
+    "test": "npm --prefix backend test",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev"
+  }
 }

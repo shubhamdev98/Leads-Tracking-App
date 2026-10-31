@@ -1,0 +1,17 @@
+services:
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DB_PATH=/app/backend/data/leads.db
+    volumes:
+      - db_data:/app/backend/data
+    restart: unless-stopped
+
+volumes:
+  db_data:

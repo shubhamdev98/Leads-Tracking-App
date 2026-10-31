@@ -1,158 +1,254 @@
-# 🚀 Lead Management REST API (Backend)
+# 🚀 LeadFlow — Lead Management Portal (Fullstack)
 
-A robust, production-grade **Lead Management REST API** built with **Node.js**, **Express**, **TypeScript**, and **SQLite** (via `better-sqlite3`).
+A modern, production-ready **Lead Management Portal** backed by a REST API. Built with **React 18**, **TypeScript**, **Node.js**, **Express 5**, and **SQLite** (via WebAssembly engine with disk persistence).
 
 ---
 
-## 🌟 Features
+## 🌟 Highlights & Features
 
-### 1. Leads CRUD
-- **Create**: Register leads with full validation (`name`, `email`, `phone`, `status`).
-- **Read**: List leads with search, status filtering, and pagination; fetch individual lead details.
-- **Update**: Modify lead contact details and pipeline status (`new`, `contacted`, `qualified`, `lost`).
-- **Delete**: Remove leads with automatic cascading deletion of associated notes.
+### 1. Leads CRUD Operations
+- **Create**: Add new customer leads with comprehensive input validation (`name`, `email`, `phone`, `status`).
+- **Read**: List leads with real-time search (by name or email), status filtering (`all`, `new`, `contacted`, `qualified`, `lost`), and pagination controls.
+- **Update**: Modify lead contact details and change pipeline status dynamically.
+- **Delete**: Remove leads with automatic cascading deletion of all associated notes.
 
-### 2. Notes per Lead
+### 2. Activity Notes per Lead
 - Attach unlimited chronological activity notes to each lead (`id`, `leadId`, `content`, `createdAt`).
-- Retrieve notes per lead (ordered newest first).
-- Gracefully handles leads with zero notes (`[]`).
-- Delete individual notes.
+- Retrieve all notes per lead (ordered newest first).
+- Gracefully handles leads with zero notes.
+- Individual note deletion.
 
-### 3. Validation & Error Handling
-- Strict RFC 5322 email format validation.
-- All required fields validated (`name`, `email`, `phone`, `content`).
-- Proper HTTP status codes: `200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `401 Unauthorized`.
-- Graceful handling of missing leads and invalid routes.
+### 3. Web Portal (React Frontend)
+- **Leads List Page**:
+  - Live search input by name or email with quick clear.
+  - Interactive status tabs (`All`, `New`, `Contacted`, `Qualified`, `Lost`) with visual indicators.
+  - Interactive leads table with user avatars, status badges, timestamps, and action buttons.
+  - Summary metric cards displaying total counts across each pipeline stage.
+  - Pagination toolbar with dynamic page navigation.
+- **Lead Detail Page**:
+  - Full lead profile summary card with formatted contact information.
+  - Instant status pipeline switcher dropdown.
+  - Add Note form with validation and quick submission.
+  - Activity & Notes timeline displaying timestamps and note contents.
+  - Safe lead deletion button with confirmation dialog.
+- **Create Lead Page**:
+  - Validated form with real-time feedback for required fields and RFC email format.
+  - Pipeline status radio selector grid.
+  - Optional first interaction note recorded simultaneously upon creation.
 
-### 4. 🎁 Bonus Features
-- ✅ **TypeScript**: Fully typed domain models, controllers, and services with `strict: true`.
-- ✅ **Pagination**: Configurable `page` and `limit` query parameters with pagination metadata.
+### 4. API Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/leads?search=&status=&page=&limit=` | Get leads with search, status filter, and pagination |
+| `POST` | `/api/leads` | Create a new lead |
+| `GET` | `/api/leads/:id` | Get single lead by ID |
+| `PATCH` | `/api/leads/:id` | Update lead fields (`name`, `email`, `phone`, `status`) |
+| `DELETE` | `/api/leads/:id` | Delete a lead and cascade delete its notes |
+| `GET` | `/api/leads/:id/notes` | Get all notes for a specific lead |
+| `POST` | `/api/leads/:id/notes` | Add a note to a specific lead |
+| `DELETE` | `/api/leads/:id/notes/:noteId` | Delete an individual note |
+| `GET` | `/api/leads/stats` | Get aggregate pipeline metrics |
+
+### 5. Validation & Error Handling
+- Strict RFC 5322 email validation.
+- All required fields validated (`name` min 2 chars, `email`, `phone`, `content`).
+- Standardized HTTP status codes: `200 OK`, `201 Created`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Internal Server Error`.
+- Structured JSON error responses: `{ "error": "Error message", "details": ... }`.
+
+### 6. 🎁 Bonus Features Included
+- ✅ **Pagination**: Configurable `page` and `limit` query parameters with total count and page metadata.
 - ✅ **Basic Authentication**: Middleware supporting HTTP Basic Auth (`admin:admin123`, toggleable via `BASIC_AUTH_ENABLED`).
-- ✅ **Automated Test Suite**: 27 Jest + Supertest test cases running against an isolated in-memory SQLite database.
-- ✅ **Database Seeding**: Built-in CLI seed script (`npm run seed`) populating 8 realistic leads and 18 activity notes.
+- ✅ **Automated Test Suite**: 27 unit tests with Jest + Supertest running on isolated in-memory SQLite (`100% passing`).
+- ✅ **Database Seeding**: CLI seed script (`npm run seed`) populating 8 realistic leads and 18 activity notes.
+- ✅ **Dockerfile & Docker Compose**: Multi-stage production build and container orchestration.
+- ✅ **TypeScript**: Strict mode enabled across both frontend and backend.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
-| Component | Technology |
+| Layer | Technologies |
 |---|---|
-| **Runtime** | Node.js (v18+ / v20+ / v22+ / v24+) |
-| **Framework** | Express 5 |
-| **Language** | TypeScript (ES2022, strict mode) |
-| **Database** | SQLite via `better-sqlite3` (with WAL mode & Foreign Key constraints) |
-| **Testing** | Jest + Supertest (In-memory SQLite test suites) |
+| **Frontend** | React 18, TypeScript, Vite, Lucide Icons, Custom Design System CSS |
+| **Backend** | Node.js (v18+ / v20+ / v22+ / v24+), Express 5, TypeScript |
+| **Database** | SQLite (with WAL mode, indexes, foreign keys, and cascading delete) |
+| **Testing** | Jest, Supertest, ts-jest |
+| **Dev Tools** | Concurrently, Docker, Docker Compose |
 
 ---
 
-## 📁 Directory Structure
+## 📁 Project Structure
 
 ```
 Interview/
-├── backend/                # Backend API directory
+├── backend/                   # Express REST API
 │   ├── src/
-│   │   ├── config/         # Centralized environment config
-│   │   ├── types/          # Domain models, DTOs & filter interfaces
-│   │   ├── db/             # SQLite connection, schema initialization & seed script
-│   │   ├── repositories/   # Data Access Layer (LeadRepository, NoteRepository)
-│   │   ├── services/       # Business Logic & Input Validation (LeadService, NoteService)
-│   │   ├── middleware/     # Basic Auth, Error Handler, 404 Handler
-│   │   ├── controllers/    # REST API controllers
-│   │   ├── routes/         # Express API routes
-│   │   ├── app.ts          # Express application setup
-│   │   └── server.ts       # Server entry point & graceful shutdown
-│   ├── tests/              # Automated Test Suite (Jest + Supertest)
-│   │   ├── helpers/        # In-memory test DB & test app factory
-│   │   ├── leads.test.ts   # Leads CRUD & validation tests
-│   │   ├── notes.test.ts   # Notes CRUD & cascading delete tests
-│   │   └── auth.test.ts    # Basic authentication tests
-│   ├── data/               # SQLite database directory (leads.db)
-│   ├── .env                # Environment variables
-│   ├── .env.example        # Environment variable templates
-│   ├── tsconfig.json       # Backend TypeScript configuration
-│   ├── jest.config.js      # Jest test configuration
-│   └── package.json        # Backend dependencies & scripts
-├── package.json            # Root proxy scripts
-└── README.md               # Documentation & curl examples
+│   │   ├── config/            # Environment configuration
+│   │   ├── controllers/       # API controllers (Leads, Notes)
+│   │   ├── db/                # SQLite connection, schema & seed script
+│   │   ├── middleware/        # Basic Auth, Error Handler, 404 Handler
+│   │   ├── repositories/      # Data Access Layer (LeadRepository, NoteRepository)
+│   │   ├── routes/            # Express routes
+│   │   ├── services/          # Business logic & validation (LeadService, NoteService)
+│   │   ├── types/             # Domain TypeScript interfaces
+│   │   ├── app.ts             # Express app setup & static file serving
+│   │   └── server.ts          # Server entry point
+│   ├── tests/                 # Automated Jest test suite (27 tests)
+│   │   ├── helpers/           # In-memory SQLite test DB setup
+│   │   ├── auth.test.ts       # Basic Auth tests
+│   │   ├── leads.test.ts      # Leads CRUD & validation tests
+│   │   └── notes.test.ts      # Notes CRUD & cascade delete tests
+│   ├── data/                  # SQLite database directory (leads.db)
+│   ├── jest.config.js         # Jest configuration
+│   ├── package.json           # Backend dependencies
+│   └── tsconfig.json          # Backend TypeScript configuration
+├── frontend/                  # React Single-Page Application
+│   ├── src/
+│   │   ├── api/               # Typed REST API client
+│   │   ├── components/        # React components (Header, LeadsList, LeadDetail, CreateLeadPage, etc.)
+│   │   ├── types/             # Frontend TypeScript types
+│   │   ├── App.tsx            # Main App layout & view router
+│   │   ├── index.css          # Design system & CSS styles
+│   │   └── main.tsx           # React entry point
+│   ├── index.html             # HTML template
+│   ├── package.json           # Frontend dependencies
+│   ├── tsconfig.json          # Frontend TypeScript configuration
+│   └── vite.config.ts         # Vite configuration with /api reverse proxy
+├── scripts/                   # Development & installation runner scripts
+│   ├── dev.js                 # Concurrent dev runner
+│   └── install.js             # Workspace installer
+├── Dockerfile                 # Multi-stage production container build
+├── docker-compose.yml         # Container orchestration
+├── package.json               # Root scripts
+└── README.md                  # Documentation
 ```
 
 ---
 
-## 🚀 Quick Start
+## ⚡ Quick Start
 
 ### 1. Install Dependencies
 
-You can run commands from the repository root:
+From the project root:
 
 ```bash
 npm install
 ```
 
-*(Or from the `backend/` directory: `cd backend && npm install`)*
+*(This automatically installs dependencies for both backend and frontend)*
 
-### 2. Configure Environment
+### 2. Seed Sample Data (Optional)
 
-Environment settings are configured in `backend/.env` (default settings provided out-of-the-box):
-
-```env
-PORT=3000
-NODE_ENV=development
-DATABASE_PATH=./data/leads.db
-
-# Optional Basic Authentication
-BASIC_AUTH_ENABLED=false
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
-```
-
-### 3. Seed Sample Data (Optional)
-
-Populate the database with realistic sample leads and activity notes:
+Populate the SQLite database with 8 realistic customer leads and 18 activity notes:
 
 ```bash
 npm run seed
 ```
 
-### 4. Start Development Server
+### 3. Start Development Servers
 
 ```bash
 npm run dev
 ```
 
-The server starts on port 3000:
-- 📡 **API Root**: [http://localhost:3000/](http://localhost:3000/)
-- 📡 **Leads API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
+Both servers will start concurrently:
+- 🌐 **Frontend Web Portal**: [http://localhost:5173/](http://localhost:5173/)
+- 📡 **Backend REST API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
 
-### 5. Build & Start for Production
-
-```bash
-npm run build
-npm start
-```
+*(Vite dev server automatically proxies `/api/*` requests to port 3000)*
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Running Automated Tests
 
-The test suite runs with an in-memory SQLite database (`:memory:`), ensuring complete isolation, zero disk pollution, and sub-second execution:
+Run the complete Jest test suite:
 
 ```bash
 npm test
 ```
 
-### Test Coverage (27 Tests):
-- **`tests/leads.test.ts`**: CRUD operations, required field validations, email regex validation, status validation, search filters, pagination.
-- **`tests/notes.test.ts`**: Note addition, retrieval, missing lead 404, empty note 400, and foreign key cascading deletion.
-- **`tests/auth.test.ts`**: Basic Auth challenges, 401 unauthorized handling, `WWW-Authenticate` headers, and authorized 200 responses.
+### Test Results (27 Passing Tests)
+```
+PASS tests/leads.test.ts
+  Leads API Endpoints
+    POST /api/leads
+      √ should create a lead successfully with status 201
+      √ should default status to "new" if not provided
+      √ should return 400 when required fields are missing
+      √ should return 400 for invalid email format
+      √ should return 400 for invalid lead status
+    GET /api/leads
+      √ should return all leads as an array by default
+      √ should filter leads by status
+      √ should search leads by name
+      √ should search leads by email
+      √ should support pagination bonus feature when page is requested
+    GET /api/leads/:id
+      √ should return lead by ID
+      √ should return 404 for non-existent lead
+    PATCH /api/leads/:id
+      √ should update lead status and details
+      √ should return 400 when updating with invalid email
+      √ should return 404 when updating non-existent lead
+    DELETE /api/leads/:id
+      √ should delete lead successfully
+      √ should return 404 when deleting non-existent lead
+
+PASS tests/notes.test.ts
+  Notes API Endpoints
+    GET /api/leads/:id/notes
+      √ should return 404 when lead does not exist
+      √ should return an empty array for a lead with no notes
+      √ should return all notes for a lead in chronological order
+    POST /api/leads/:id/notes
+      √ should add a note to a lead and return 201
+      √ should return 400 when note content is empty or whitespace
+      √ should return 404 when adding note to non-existent lead
+    Cascading Deletion of Notes
+      √ should automatically cascade delete all notes when parent lead is deleted
+
+PASS tests/auth.test.ts
+  Basic Authentication Middleware (Bonus Feature)
+    √ should return 401 Unauthorized when credentials are not supplied
+    √ should return 401 Unauthorized with invalid credentials
+    √ should grant access and return 200 with valid credentials
+
+Test Suites: 3 passed, 3 total
+Tests:       27 passed, 27 total
+```
 
 ---
 
-## 📚 REST API Reference & `curl` Examples
+## 📦 Production Build & Run
 
-### Leads Endpoints
+### Build Both Packages
+```bash
+npm run build
+```
 
-#### 1. List Leads
-Supports filtering by `search` (name or email), `status` (`new`, `contacted`, `qualified`, `lost`), and pagination (`page`, `limit`).
+### Start Production Server
+```bash
+npm start
+```
+The Express server on port 3000 will serve both the backend REST API (`/api/*`) and the built React frontend (`/*`).
+
+---
+
+## 🐳 Docker Deployment
+
+You can build and run the entire application in a container with a single command:
+
+```bash
+docker compose up --build
+```
+
+Then visit [http://localhost:3000/](http://localhost:3000/) in your browser.
+
+---
+
+## 📖 API Examples (`curl`)
+
+### 1. List Leads (with Search, Status Filter & Pagination)
 
 ```bash
 # Get all leads
@@ -168,18 +264,18 @@ curl -X GET "http://localhost:3000/api/leads?search=Sarah"
 curl -X GET "http://localhost:3000/api/leads?page=1&limit=5"
 ```
 
-**Paginated Response Example (200 OK):**
+**Example Response (`200 OK`):**
 ```json
 {
   "data": [
     {
-      "id": "1ad21275-48ac-4091-9aae-d505f69a7639",
-      "name": "Sarah Connor",
-      "email": "sarah.connor@cyberdyne-defense.com",
-      "phone": "+1 (555) 234-5678",
+      "id": "b7bb2dc8-b727-4581-8522-768da8fcebb8",
+      "name": "Liam Gallagher",
+      "email": "liam.g@soundtrack-studios.co.uk",
+      "phone": "+44 161 496 0123",
       "status": "new",
-      "createdAt": "2026-10-23T05:49:23.185Z",
-      "updatedAt": "2026-10-23T05:49:23.185Z"
+      "createdAt": "2026-10-30T07:32:22.504Z",
+      "updatedAt": "2026-10-30T07:32:22.504Z"
     }
   ],
   "pagination": {
@@ -195,159 +291,164 @@ curl -X GET "http://localhost:3000/api/leads?page=1&limit=5"
 
 ---
 
-#### 2. Create a Lead
-Validates that `name` (min 2 chars), `email` (RFC format), and `phone` are provided. `status` defaults to `new` if omitted.
+### 2. Create a Lead
 
 ```bash
 curl -X POST "http://localhost:3000/api/leads" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Bruce Wayne",
-    "email": "bruce.wayne@wayneenterprises.com",
-    "phone": "+1 (555) 019-9000",
+    "name": "Evelyn Harper",
+    "email": "evelyn@harperdesign.co",
+    "phone": "+1 (555) 345-6789",
+    "status": "new"
+  }'
+```
+
+**Response (`201 Created`):**
+```json
+{
+  "id": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
+  "name": "Evelyn Harper",
+  "email": "evelyn@harperdesign.co",
+  "phone": "+1 (555) 345-6789",
+  "status": "new",
+  "createdAt": "2026-10-31T07:36:30.712Z",
+  "updatedAt": "2026-10-31T07:36:30.712Z"
+}
+```
+
+---
+
+### 3. Get Lead by ID
+
+```bash
+curl -X GET "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0"
+```
+
+**Response (`200 OK`):**
+```json
+{
+  "id": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
+  "name": "Evelyn Harper",
+  "email": "evelyn@harperdesign.co",
+  "phone": "+1 (555) 345-6789",
+  "status": "new",
+  "createdAt": "2026-10-31T07:36:30.712Z",
+  "updatedAt": "2026-10-31T07:36:30.712Z"
+}
+```
+
+---
+
+### 4. Update a Lead (PATCH)
+
+```bash
+curl -X PATCH "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0" \
+  -H "Content-Type: application/json" \
+  -d '{
     "status": "qualified"
   }'
 ```
 
-**Response (201 Created):**
-```json
-{
-  "id": "59cb4a52-9dae-4cf7-9a40-2c7009e4526d",
-  "name": "Bruce Wayne",
-  "email": "bruce.wayne@wayneenterprises.com",
-  "phone": "+1 (555) 019-9000",
-  "status": "qualified",
-  "createdAt": "2026-10-31T06:00:00.000Z",
-  "updatedAt": "2026-10-31T06:00:00.000Z"
-}
-```
-
 ---
 
-#### 3. Get Lead by ID
+### 5. Add a Note to a Lead
 
 ```bash
-curl -X GET "http://localhost:3000/api/leads/59cb4a52-9dae-4cf7-9a40-2c7009e4526d"
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": "59cb4a52-9dae-4cf7-9a40-2c7009e4526d",
-  "name": "Bruce Wayne",
-  "email": "bruce.wayne@wayneenterprises.com",
-  "phone": "+1 (555) 019-9000",
-  "status": "qualified",
-  "createdAt": "2026-10-31T06:00:00.000Z",
-  "updatedAt": "2026-10-31T06:00:00.000Z"
-}
-```
-
----
-
-#### 4. Update a Lead (PATCH)
-Update one or more fields (`name`, `email`, `phone`, `status`).
-
-```bash
-curl -X PATCH "http://localhost:3000/api/leads/59cb4a52-9dae-4cf7-9a40-2c7009e4526d" \
+curl -X POST "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0/notes" \
   -H "Content-Type: application/json" \
   -d '{
-    "status": "contacted",
-    "phone": "+1 (555) 999-0000"
+    "content": "Lead attended product demonstration. Requested enterprise security whitepaper."
   }'
 ```
 
-**Response (200 OK):**
+**Response (`201 Created`):**
 ```json
 {
-  "id": "59cb4a52-9dae-4cf7-9a40-2c7009e4526d",
-  "name": "Bruce Wayne",
-  "email": "bruce.wayne@wayneenterprises.com",
-  "phone": "+1 (555) 999-0000",
-  "status": "contacted",
-  "createdAt": "2026-10-31T06:00:00.000Z",
-  "updatedAt": "2026-10-31T06:02:15.123Z"
+  "id": "c33a9b87-8783-4ea7-8780-486afefb2ba9",
+  "leadId": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
+  "content": "Lead attended product demonstration. Requested enterprise security whitepaper.",
+  "createdAt": "2026-10-31T07:36:42.969Z"
 }
 ```
 
 ---
 
-#### 5. Delete a Lead
-Deletes the lead and automatically cascades deletion to all attached notes.
+### 6. Get All Notes for a Lead
 
 ```bash
-curl -X DELETE "http://localhost:3000/api/leads/59cb4a52-9dae-4cf7-9a40-2c7009e4526d"
+curl -X GET "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0/notes"
 ```
 
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "message": "Lead deleted successfully",
-  "id": "59cb4a52-9dae-4cf7-9a40-2c7009e4526d"
-}
-```
-
----
-
-### Notes Endpoints
-
-#### 6. Get Notes for a Lead
-Returns all notes chronologically (newest first). If the lead exists with 0 notes, returns an empty array `[]`. If the lead doesn't exist, returns `404 Not Found`.
-
-```bash
-curl -X GET "http://localhost:3000/api/leads/1ad21275-48ac-4091-9aae-d505f69a7639/notes"
-```
-
-**Response (200 OK):**
+**Response (`200 OK`):**
 ```json
 [
   {
-    "id": "f51a44e6-81cf-4186-b4d0-a03525b68234",
-    "leadId": "1ad21275-48ac-4091-9aae-d505f69a7639",
-    "content": "Lead captured through company website contact form.",
-    "createdAt": "2026-10-23T08:49:23.185Z"
+    "id": "c33a9b87-8783-4ea7-8780-486afefb2ba9",
+    "leadId": "06db3562-a04f-454b-b97e-d9ee63f1a7e0",
+    "content": "Lead attended product demonstration. Requested enterprise security whitepaper.",
+    "createdAt": "2026-10-31T07:36:42.969Z"
   }
 ]
 ```
 
 ---
 
-#### 7. Add a Note to a Lead
+### 7. Delete a Lead (Cascades to Associated Notes)
 
 ```bash
-curl -X POST "http://localhost:3000/api/leads/1ad21275-48ac-4091-9aae-d505f69a7639/notes" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "Follow-up demo scheduled for Thursday at 2 PM EST."
-  }'
+curl -X DELETE "http://localhost:3000/api/leads/06db3562-a04f-454b-b97e-d9ee63f1a7e0"
 ```
 
-**Response (201 Created):**
+**Response (`200 OK`):**
 ```json
 {
-  "id": "7c180da2-c67d-4c3d-bd88-fa0812e1be71",
-  "leadId": "1ad21275-48ac-4091-9aae-d505f69a7639",
-  "content": "Follow-up demo scheduled for Thursday at 2 PM EST.",
-  "createdAt": "2026-10-31T06:05:00.000Z"
+  "success": true,
+  "message": "Lead 06db3562-a04f-454b-b97e-d9ee63f1a7e0 and associated notes deleted successfully"
 }
 ```
 
 ---
 
-### 🔒 Basic Authentication (Optional Bonus Feature)
-
-When `BASIC_AUTH_ENABLED=true` in `backend/.env`:
+### 8. Pipeline Statistics
 
 ```bash
-# Request without credentials -> 401 Unauthorized
-curl -i -X GET "http://localhost:3000/api/leads"
+curl -X GET "http://localhost:3000/api/leads/stats"
+```
 
-# Request with Basic Auth credentials (-u admin:admin123) -> 200 OK
-curl -u admin:admin123 -X GET "http://localhost:3000/api/leads"
+**Response (`200 OK`):**
+```json
+{
+  "total": 9,
+  "new": 3,
+  "contacted": 2,
+  "qualified": 3,
+  "lost": 1
+}
 ```
 
 ---
 
-## 📄 License
-ISC License.
+### 9. Basic Authentication (Bonus Feature)
+
+When `BASIC_AUTH_ENABLED=true` in `backend/.env`:
+
+```bash
+# Request without credentials (Returns 401 Unauthorized)
+curl -i -X GET "http://localhost:3000/api/leads"
+
+# Request with valid credentials (admin:admin123)
+curl -X GET "http://localhost:3000/api/leads" \
+  -u admin:admin123
+```
+
+---
+
+## 🔒 Security & Best Practices
+
+- Parameterized SQL queries preventing SQL injection vulnerabilities.
+- RFC 5322 regex validation preventing invalid email formats.
+- Foreign key constraints enabled with `ON DELETE CASCADE` preventing orphaned notes.
+- Centralized error handling preventing stack trace leaks in production.
+- CORS enabled for cross-origin frontend requests.
+- Graceful process termination handling `SIGINT` and `SIGTERM`.

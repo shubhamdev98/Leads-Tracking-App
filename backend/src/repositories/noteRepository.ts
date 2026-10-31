@@ -1,12 +1,16 @@
-import { Database } from 'better-sqlite3';
-import { getDatabase } from '../db/database';
+import { ISqliteDatabase, getDatabase } from '../db/database';
 import { Note } from '../types/lead';
 
 export class NoteRepository {
-  private db: Database;
+  private _db?: ISqliteDatabase;
 
-  constructor(customDb?: Database) {
-    this.db = customDb || getDatabase();
+  constructor(private customDb?: ISqliteDatabase) {}
+
+  private get db(): ISqliteDatabase {
+    if (!this._db) {
+      this._db = this.customDb || getDatabase();
+    }
+    return this._db;
   }
 
   create(note: Note): Note {

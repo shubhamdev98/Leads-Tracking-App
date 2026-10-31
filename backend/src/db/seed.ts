@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
-import { getDatabase, closeDatabase } from './database';
+import { initDatabaseEngine, getDatabase, closeDatabase } from './database';
 import { LeadRepository } from '../repositories/leadRepository';
 import { NoteRepository } from '../repositories/noteRepository';
 import { Lead, Note } from '../types/lead';
 
-export function seedDatabase(): void {
+export async function seedDatabase(): Promise<void> {
+  await initDatabaseEngine();
   const db = getDatabase();
   const leadRepo = new LeadRepository(db);
   const noteRepo = new NoteRepository(db);
@@ -125,12 +126,13 @@ export function seedDatabase(): void {
 }
 
 if (require.main === module) {
-  try {
-    seedDatabase();
-    closeDatabase();
-    process.exit(0);
-  } catch (err) {
-    console.error('Failed to seed database:', err);
-    process.exit(1);
-  }
+  seedDatabase()
+    .then(() => {
+      closeDatabase();
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Failed to seed database:', err);
+      process.exit(1);
+    });
 }

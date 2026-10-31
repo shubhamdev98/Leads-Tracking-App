@@ -1,6 +1,8 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
+import fs from 'fs';
 import apiRoutes from './routes/apiRoutes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { config } from './config';
@@ -35,6 +37,21 @@ export function createApp(): Application {
 
   // Mount REST API Routes
   app.use('/api', apiRoutes);
+
+  // Serve React frontend if dist exists (production mode)
+  const frontendDist = path.resolve(__dirname, '../../frontend/dist');
+  if (fs.existsSync(frontendDist)) {
+    app.use(express.static(frontendDist));
+    app.use((req: Request, res: Response, next) => {
+      if (req.method === 'GET' && !req.path.startsWith('/api')) {
+        const indexPath = path.join(frontendDist, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          return res.sendFile(indexPath);
+        }
+      }
+      next();
+    });
+  }
 
   // 404 handler
   app.use(notFoundHandler);

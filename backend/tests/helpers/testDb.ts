@@ -1,14 +1,11 @@
-import Database from 'better-sqlite3';
-import { initSchema } from '../../src/db/database';
+import { createSqliteDatabase, ISqliteDatabase } from '../../src/db/database';
 import { LeadRepository } from '../../src/repositories/leadRepository';
 import { NoteRepository } from '../../src/repositories/noteRepository';
 import { LeadService } from '../../src/services/leadService';
 import { NoteService } from '../../src/services/noteService';
 
 export function createTestContext() {
-  const testDb = new Database(':memory:');
-  testDb.pragma('foreign_keys = ON');
-  initSchema(testDb);
+  const testDb = createSqliteDatabase(':memory:');
 
   const leadRepo = new LeadRepository(testDb);
   const noteRepo = new NoteRepository(testDb);

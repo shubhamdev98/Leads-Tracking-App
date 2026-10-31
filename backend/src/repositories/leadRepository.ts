@@ -1,12 +1,16 @@
-import { Database } from 'better-sqlite3';
-import { getDatabase } from '../db/database';
+import { ISqliteDatabase, getDatabase } from '../db/database';
 import { Lead, LeadFilters, LeadStatus } from '../types/lead';
 
 export class LeadRepository {
-  private db: Database;
+  private _db?: ISqliteDatabase;
 
-  constructor(customDb?: Database) {
-    this.db = customDb || getDatabase();
+  constructor(private customDb?: ISqliteDatabase) {}
+
+  private get db(): ISqliteDatabase {
+    if (!this._db) {
+      this._db = this.customDb || getDatabase();
+    }
+    return this._db;
   }
 
   create(lead: Lead): Lead {

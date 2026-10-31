@@ -1,10 +1,11 @@
 import { app } from './app';
 import { config } from './config';
-import { getDatabase, closeDatabase } from './db/database';
+import { initDatabaseEngine, getDatabase, closeDatabase } from './db/database';
 
-function startServer(): void {
-  // Ensure database is initialized
+async function startServer(): Promise<void> {
+  // Ensure database engine and connection are initialized
   try {
+    await initDatabaseEngine();
     getDatabase();
     console.log(`[Database] SQLite connected at: ${config.databasePath}`);
   } catch (err) {
