@@ -1,6 +1,4 @@
-import express, { Application } from 'express';
-import path from 'path';
-import fs from 'fs';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import apiRoutes from './routes/apiRoutes';
@@ -20,23 +18,26 @@ export function createApp(): Application {
     app.use(morgan('dev'));
   }
 
+  // API Root information
+  app.get('/', (req: Request, res: Response) => {
+    res.status(200).json({
+      name: 'Lead Management API',
+      version: '1.0.0',
+      status: 'active',
+      endpoints: {
+        leads: '/api/leads',
+        lead_by_id: '/api/leads/:id',
+        notes: '/api/leads/:id/notes',
+        stats: '/api/leads/stats',
+      },
+    });
+  });
+
   // Mount REST API Routes
   app.use('/api', apiRoutes);
 
-  // Serve compiled React client in production if available
-  const clientDist = path.join(process.cwd(), 'dist', 'client');
-  if (fs.existsSync(clientDist)) {
-    app.use(express.static(clientDist));
-    app.use((req, res, next) => {
-      if (req.originalUrl.startsWith('/api') || req.method !== 'GET') {
-        return next();
-      }
-      res.sendFile(path.join(clientDist, 'index.html'));
-    });
-  }
-
-  // 404 handler for API routes
-  app.use('/api', notFoundHandler);
+  // 404 handler
+  app.use(notFoundHandler);
 
   // Centralized Error Handler
   app.use(errorHandler);

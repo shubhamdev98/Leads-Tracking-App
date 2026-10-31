@@ -1,84 +1,105 @@
-# 🚀 LeadFlow — Lead Management Portal (React.js + Node.js Express)
+# 🚀 Lead Management REST API (Backend)
 
-A modern, full-stack **Lead Management Portal** backed by a robust REST API, built with **React.js**, **Node.js**, **Express**, **TypeScript**, and **SQLite** (via `better-sqlite3`).
+A robust, production-grade **Lead Management REST API** built with **Node.js**, **Express**, **TypeScript**, and **SQLite** (via `better-sqlite3`).
 
 ---
 
-## 🌟 Key Features
+## 🌟 Features
 
 ### 1. Leads CRUD
-- **Create**: Add leads with full validation (`name`, `email`, `phone`, `status`).
-- **Read**: List leads with search, filtering, and pagination; view detailed profile per lead.
-- **Update**: Edit contact information and update pipeline status (`new`, `contacted`, `qualified`, `lost`).
+- **Create**: Register leads with full validation (`name`, `email`, `phone`, `status`).
+- **Read**: List leads with search, status filtering, and pagination; fetch individual lead details.
+- **Update**: Modify lead contact details and pipeline status (`new`, `contacted`, `qualified`, `lost`).
 - **Delete**: Remove leads with automatic cascading deletion of associated notes.
 
 ### 2. Notes per Lead
 - Attach unlimited chronological activity notes to each lead (`id`, `leadId`, `content`, `createdAt`).
-- Individual note deletion.
-- Clean empty states when leads have zero notes.
+- Retrieve notes per lead (ordered newest first).
+- Gracefully handles leads with zero notes (`[]`).
+- Delete individual notes.
 
-### 3. Web Portal (React.js Single Page Application)
-- **Leads List Page (`/`)**:
-  - Live statistics dashboard (Total, New, Contacted, Qualified, Lost).
-  - Instant live search by name or email with quick clear button.
-  - Status filter tabs with status counters and active pill highlights.
-  - Responsive table with custom avatars, formatted timestamps, and quick action icons.
-  - Full pagination controls (Previous, page numbers, Next, total counts).
-- **Create & Edit Lead Modal**:
-  - Interactive modal dialog with real-time field validation and status selector cards.
-- **Lead Detail View**:
-  - Contact cards, instant status dropdown switcher, and edit/delete actions.
-  - Activity timeline notes feed and inline "Add Note" form with real-time updates.
-- **Interactive Feedback**:
-  - Toast notifications on create, update, delete, and note actions.
+### 3. Validation & Error Handling
+- Strict RFC 5322 email format validation.
+- All required fields validated (`name`, `email`, `phone`, `content`).
+- Proper HTTP status codes: `200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `401 Unauthorized`.
+- Graceful handling of missing leads and invalid routes.
 
 ### 4. 🎁 Bonus Features
-- ✅ **React.js Frontend**: Modern, reactive SPA with Lucide icons and clean CSS design system.
 - ✅ **TypeScript**: Fully typed domain models, controllers, and services with `strict: true`.
 - ✅ **Pagination**: Configurable `page` and `limit` query parameters with pagination metadata.
-- ✅ **Basic Authentication**: Configurable HTTP Basic Auth middleware for both API and portal.
-- ✅ **Unit & Integration Tests**: 27 Jest + Supertest test cases covering routes, edge cases, and validations.
-- ✅ **Database Seeding**: Built-in CLI seed script (`npm run seed`) and empty-state UI buttons.
+- ✅ **Basic Authentication**: Middleware supporting HTTP Basic Auth (`admin:admin123`, toggleable via `BASIC_AUTH_ENABLED`).
+- ✅ **Automated Test Suite**: 27 Jest + Supertest test cases running against an isolated in-memory SQLite database.
+- ✅ **Database Seeding**: Built-in CLI seed script (`npm run seed`) populating 8 realistic leads and 18 activity notes.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
+| Component | Technology |
 |---|---|
-| **Frontend** | React.js (v19) + Vite + Lucide Icons + Modern CSS |
-| **Backend** | Node.js + Express 5 |
-| **Language** | TypeScript (ES2022) |
+| **Runtime** | Node.js (v18+ / v20+ / v22+ / v24+) |
+| **Framework** | Express 5 |
+| **Language** | TypeScript (ES2022, strict mode) |
 | **Database** | SQLite via `better-sqlite3` (with WAL mode & Foreign Key constraints) |
 | **Testing** | Jest + Supertest (In-memory SQLite test suites) |
 
 ---
 
+## 📁 Directory Structure
+
+```
+Interview/
+├── backend/                # Backend API directory
+│   ├── src/
+│   │   ├── config/         # Centralized environment config
+│   │   ├── types/          # Domain models, DTOs & filter interfaces
+│   │   ├── db/             # SQLite connection, schema initialization & seed script
+│   │   ├── repositories/   # Data Access Layer (LeadRepository, NoteRepository)
+│   │   ├── services/       # Business Logic & Input Validation (LeadService, NoteService)
+│   │   ├── middleware/     # Basic Auth, Error Handler, 404 Handler
+│   │   ├── controllers/    # REST API controllers
+│   │   ├── routes/         # Express API routes
+│   │   ├── app.ts          # Express application setup
+│   │   └── server.ts       # Server entry point & graceful shutdown
+│   ├── tests/              # Automated Test Suite (Jest + Supertest)
+│   │   ├── helpers/        # In-memory test DB & test app factory
+│   │   ├── leads.test.ts   # Leads CRUD & validation tests
+│   │   ├── notes.test.ts   # Notes CRUD & cascading delete tests
+│   │   └── auth.test.ts    # Basic authentication tests
+│   ├── data/               # SQLite database directory (leads.db)
+│   ├── .env                # Environment variables
+│   ├── .env.example        # Environment variable templates
+│   ├── tsconfig.json       # Backend TypeScript configuration
+│   ├── jest.config.js      # Jest test configuration
+│   └── package.json        # Backend dependencies & scripts
+├── package.json            # Root proxy scripts
+└── README.md               # Documentation & curl examples
+```
+
+---
+
 ## 🚀 Quick Start
 
-### 1. Clone & Install
+### 1. Install Dependencies
+
+You can run commands from the repository root:
 
 ```bash
-git clone <repository-url>
-cd Interview
 npm install
 ```
 
+*(Or from the `backend/` directory: `cd backend && npm install`)*
+
 ### 2. Configure Environment
 
-Copy the example environment file:
+Environment settings are configured in `backend/.env` (default settings provided out-of-the-box):
 
-```bash
-cp .env.example .env
-```
-
-Default `.env` configuration:
 ```env
 PORT=3000
 NODE_ENV=development
 DATABASE_PATH=./data/leads.db
 
-# Optional Basic Authentication (toggleable)
+# Optional Basic Authentication
 BASIC_AUTH_ENABLED=false
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
@@ -86,7 +107,7 @@ ADMIN_PASSWORD=admin123
 
 ### 3. Seed Sample Data (Optional)
 
-Populate the database with 8 realistic leads and 18 activity notes:
+Populate the database with realistic sample leads and activity notes:
 
 ```bash
 npm run seed
@@ -98,11 +119,11 @@ npm run seed
 npm run dev
 ```
 
-The portal and API will be available at:
-- 🌐 **React Web Portal**: [http://localhost:3000/](http://localhost:3000/)
-- 📡 **REST API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
+The server starts on port 3000:
+- 📡 **API Root**: [http://localhost:3000/](http://localhost:3000/)
+- 📡 **Leads API**: [http://localhost:3000/api/leads](http://localhost:3000/api/leads)
 
-### 5. Build for Production
+### 5. Build & Start for Production
 
 ```bash
 npm run build
@@ -119,7 +140,7 @@ The test suite runs with an in-memory SQLite database (`:memory:`), ensuring com
 npm test
 ```
 
-### Test Coverage Highlights:
+### Test Coverage (27 Tests):
 - **`tests/leads.test.ts`**: CRUD operations, required field validations, email regex validation, status validation, search filters, pagination.
 - **`tests/notes.test.ts`**: Note addition, retrieval, missing lead 404, empty note 400, and foreign key cascading deletion.
 - **`tests/auth.test.ts`**: Basic Auth challenges, 401 unauthorized handling, `WWW-Authenticate` headers, and authorized 200 responses.
@@ -314,9 +335,9 @@ curl -X POST "http://localhost:3000/api/leads/1ad21275-48ac-4091-9aae-d505f69a76
 
 ---
 
-### 🔒 Basic Authentication Example (Optional Bonus Feature)
+### 🔒 Basic Authentication (Optional Bonus Feature)
 
-When `BASIC_AUTH_ENABLED=true` in `.env`:
+When `BASIC_AUTH_ENABLED=true` in `backend/.env`:
 
 ```bash
 # Request without credentials -> 401 Unauthorized
@@ -324,43 +345,6 @@ curl -i -X GET "http://localhost:3000/api/leads"
 
 # Request with Basic Auth credentials (-u admin:admin123) -> 200 OK
 curl -u admin:admin123 -X GET "http://localhost:3000/api/leads"
-```
-
----
-
-## 🏛️ Project Structure
-
-```
-Interview/
-├── client/                 # React.js SPA Frontend
-│   ├── index.html          # HTML entry point
-│   ├── tsconfig.json       # React TypeScript config
-│   └── src/
-│       ├── main.tsx        # React root mounting
-│       ├── App.tsx         # Main application container
-│       ├── index.css       # Design system & styles
-│       ├── types.ts        # Frontend domain interfaces
-│       ├── api/            # API client (fetch wrapper)
-│       └── components/     # Header, Stats, LeadsList, LeadDetail, Modal, Toast
-├── src/                    # Backend API (Node.js + Express)
-│   ├── config/             # Centralized environment config
-│   ├── types/              # Backend DTOs & domain models
-│   ├── db/                 # SQLite connection & seed script
-│   ├── repositories/       # Data Access Layer (LeadRepository, NoteRepository)
-│   ├── services/           # Business Logic & Validation (LeadService, NoteService)
-│   ├── middleware/         # Basic Auth, Error Handler, 404 Handler
-│   ├── controllers/        # REST API controllers
-│   ├── routes/             # Express API routes
-│   ├── app.ts              # Express application setup
-│   └── server.ts           # Server entry point & Vite dev middleware
-├── tests/                  # Automated Test Suite (Jest + Supertest)
-│   ├── helpers/            # In-memory test DB & test app factory
-│   ├── leads.test.ts       # Leads CRUD & validation tests
-│   ├── notes.test.ts       # Notes CRUD & cascading delete tests
-│   └── auth.test.ts        # Basic authentication tests
-├── vite.config.ts          # Vite build & proxy configuration
-├── tsconfig.json           # Backend TypeScript configuration
-└── package.json
 ```
 
 ---
