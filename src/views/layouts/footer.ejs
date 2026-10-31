@@ -1,0 +1,27 @@
+    </div><!-- /.container -->
+  </main>
+
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <span class="footer-brand">LeadFlow Portal</span> &copy; <%= new Date().getFullYear() %> &bull; Built with Node.js, Express, TypeScript & SQLite
+      </div>
+      <div class="footer-right">
+        <a href="/api/leads" target="_blank" class="footer-api-link" title="Explore JSON API">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <span>/api/leads</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Global Portal Interactive Scripts -->
+  <script src="/js/portal.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  lead-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lead_management_portal
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_PATH=/app/data/leads.db
+      - BASIC_AUTH_ENABLED=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+    volumes:
+      - lead_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  lead_data:

@@ -1,0 +1,108 @@
+<%- include('../layouts/header') %>
+
+<div class="breadcrumb">
+  <a href="/leads/<%= lead.id %>">&larr; Back to <%= lead.name %></a>
+</div>
+
+<div class="form-page-layout">
+  <div class="card form-card">
+    <div class="form-header">
+      <div class="form-header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      </div>
+      <div>
+        <h1 class="page-title">Edit Lead Details</h1>
+        <p class="page-subtitle">Update contact details, qualification status, and lead information.</p>
+      </div>
+    </div>
+
+    <% if (errors.general) { %>
+      <div class="alert alert-danger">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span><%= errors.general %></span>
+      </div>
+    <% } %>
+
+    <form action="/leads/<%= lead.id %>/edit" method="POST" class="standard-form" novalidate id="edit-lead-form">
+      <div class="form-group <%= errors.name ? 'has-error' : '' %>">
+        <label for="name" class="form-label">Full Name <span class="required-star">*</span></label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          class="form-input" 
+          value="<%= formData.name || lead.name %>"
+          required
+        >
+        <% if (errors.name) { %>
+          <span class="field-error"><%= errors.name %></span>
+        <% } %>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group <%= errors.email ? 'has-error' : '' %>">
+          <label for="email" class="form-label">Email Address <span class="required-star">*</span></label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            value="<%= formData.email || lead.email %>"
+            required
+          >
+          <% if (errors.email) { %>
+            <span class="field-error"><%= errors.email %></span>
+          <% } %>
+        </div>
+
+        <div class="form-group <%= errors.phone ? 'has-error' : '' %>">
+          <label for="phone" class="form-label">Phone Number <span class="required-star">*</span></label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            class="form-input" 
+            value="<%= formData.phone || lead.phone %>"
+            required
+          >
+          <% if (errors.phone) { %>
+            <span class="field-error"><%= errors.phone %></span>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="form-group <%= errors.status ? 'has-error' : '' %>">
+        <label for="status" class="form-label">Pipeline Status</label>
+        <div class="status-selector-grid">
+          <% validStatuses.forEach(st => { %>
+            <label class="status-radio-card <%= (formData.status || lead.status) === st ? 'selected' : '' %>">
+              <input 
+                type="radio" 
+                name="status" 
+                value="<%= st %>" 
+                <%= (formData.status || lead.status) === st ? 'checked' : '' %>
+              >
+              <span class="status-badge status-<%= st %>">
+                <span class="badge-dot"></span>
+                <%= st.charAt(0).toUpperCase() + st.slice(1) %>
+              </span>
+            </label>
+          <% }); %>
+        </div>
+        <% if (errors.status) { %>
+          <span class="field-error"><%= errors.status %></span>
+        <% } %>
+      </div>
+
+      <div class="form-actions">
+        <a href="/leads/<%= lead.id %>" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="btn-save-lead">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>
