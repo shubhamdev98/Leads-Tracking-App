@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import request from 'supertest';
 import { createTestApp } from './helpers/testApp';
 
@@ -78,6 +79,38 @@ describe('Leads API Endpoints', () => {
 
       expect(res.body.success).toBe(false);
       expect(res.body.details.email).toContain('Valid email address is required');
+    });
+
+    it('should return 400 when phone number contains alphabets or letters', async () => {
+      const payload = {
+        name: 'Invalid Phone Person',
+        email: 'invalid.phone@example.com',
+        phone: '+6446546shhdf',
+      };
+
+      const res = await request(app)
+        .post('/api/leads')
+        .send(payload)
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.details.phone).toBe('Phone number cannot contain alphabets');
+    });
+
+    it('should return 400 when phone number has invalid format or too few digits', async () => {
+      const payload = {
+        name: 'Short Phone Person',
+        email: 'short.phone@example.com',
+        phone: '1234',
+      };
+
+      const res = await request(app)
+        .post('/api/leads')
+        .send(payload)
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.details.phone).toBe('Valid phone number is required');
     });
 
     it('should return 400 for invalid lead status', async () => {
@@ -306,6 +339,14 @@ describe('Leads API Endpoints', () => {
         .expect(400);
 
       expect(resPhone.body.success).toBe(false);
+
+      const resAlphaPhone = await request(app)
+        .patch(`/api/leads/${leadId}`)
+        .send({ phone: '+6446546shhdf' })
+        .expect(400);
+
+      expect(resAlphaPhone.body.success).toBe(false);
+      expect(resAlphaPhone.body.details.phone).toBe('Phone number cannot contain alphabets');
     });
 
     it('should return 400 when updating with invalid email', async () => {

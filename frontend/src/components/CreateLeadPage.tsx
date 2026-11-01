@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lead, LeadStatus, VALID_STATUSES } from '../types';
 import { api, ApiError } from '../api/client';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { isValidPhone, hasAlphabets, isValidEmail } from '../utils/validation';
 
 interface CreateLeadPageProps {
   onBack: () => void;
@@ -35,17 +36,16 @@ export const CreateLeadPage: React.FC<CreateLeadPageProps> = ({
 
     if (!email.trim()) {
       errs.email = 'Email address is required.';
-    } else {
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-      if (!emailRegex.test(email.trim())) {
-        errs.email = 'Please provide a valid email address.';
-      }
+    } else if (!isValidEmail(email)) {
+      errs.email = 'Please provide a valid email address.';
     }
 
     if (!phone.trim()) {
       errs.phone = 'Phone number is required.';
-    } else if (phone.trim().length < 6) {
-      errs.phone = 'Please provide a valid phone number.';
+    } else if (hasAlphabets(phone)) {
+      errs.phone = 'Phone number cannot contain alphabets or letters.';
+    } else if (!isValidPhone(phone)) {
+      errs.phone = 'Please provide a valid phone number (7-15 digits, numbers only).';
     }
 
     setErrors(errs);
@@ -163,8 +163,13 @@ export const CreateLeadPage: React.FC<CreateLeadPageProps> = ({
                 placeholder="e.g. +1 555-0199"
                 value={phone}
                 onChange={(e) => {
-                  setPhone(e.target.value);
-                  if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+                  const val = e.target.value;
+                  setPhone(val);
+                  if (hasAlphabets(val)) {
+                    setErrors((prev) => ({ ...prev, phone: 'Phone number cannot contain alphabets or letters.' }));
+                  } else if (errors.phone) {
+                    setErrors((prev) => ({ ...prev, phone: '' }));
+                  }
                 }}
                 disabled={submitting}
                 required

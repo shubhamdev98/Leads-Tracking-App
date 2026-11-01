@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import request from 'supertest';
 import { createTestApp } from './helpers/testApp';
 import { config } from '../src/config';

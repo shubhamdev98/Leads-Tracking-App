@@ -6,12 +6,26 @@ import { NotFoundError, ValidationError } from './errors';
 import { ISqliteDatabase } from '../db/database';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+const PHONE_REGEX = /^\+?[0-9\s\-().]+$/;
 
 export function isValidEmail(email: string): boolean {
   if (!email || typeof email !== 'string') return false;
   const trimmed = email.trim();
   if (trimmed.length > 254) return false;
   return EMAIL_REGEX.test(trimmed);
+}
+
+export function isValidPhone(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') return false;
+  const trimmed = phone.trim();
+  if (trimmed.length > 25) return false;
+  // Disallow any alphabetic characters (letters)
+  if (/[a-zA-Z]/.test(trimmed)) return false;
+  // Must match allowed phone characters: optional leading '+', digits, spaces, hyphens, parentheses, dots
+  if (!PHONE_REGEX.test(trimmed)) return false;
+  // Must contain between 7 and 15 digits (ITU-T E.164 standard / standard phone ranges)
+  const digits = trimmed.replace(/\D/g, '');
+  return digits.length >= 7 && digits.length <= 15;
 }
 
 export function validateCreateLead(dto: CreateLeadDto): { name: string; email: string; phone: string; status: LeadStatus } {
@@ -36,6 +50,12 @@ export function validateCreateLead(dto: CreateLeadDto): { name: string; email: s
   const rawPhone = dto.phone !== undefined ? dto.phone : dto.mobile;
   if (!rawPhone || typeof rawPhone !== 'string' || rawPhone.trim().length === 0) {
     errors.phone = 'Phone number is required';
+  } else if (!isValidPhone(rawPhone)) {
+    if (/[a-zA-Z]/.test(rawPhone)) {
+      errors.phone = 'Phone number cannot contain alphabets';
+    } else {
+      errors.phone = 'Valid phone number is required';
+    }
   }
 
   let status: LeadStatus = 'new';
@@ -93,6 +113,12 @@ export function validateUpdateLead(dto: UpdateLeadDto): Partial<Omit<Lead, 'id' 
     hasField = true;
     if (typeof phoneValue !== 'string' || phoneValue.trim().length === 0) {
       errors.phone = 'Phone number cannot be empty';
+    } else if (!isValidPhone(phoneValue)) {
+      if (/[a-zA-Z]/.test(phoneValue)) {
+        errors.phone = 'Phone number cannot contain alphabets';
+      } else {
+        errors.phone = 'Valid phone number is required';
+      }
     } else {
       updates.phone = phoneValue.trim();
     }
@@ -219,6 +245,7 @@ export function getStats(db?: ISqliteDatabase) {
 export function createLeadService(customLeadRepo?: any, customNoteRepo?: any) {
   return {
     isValidEmail,
+    isValidPhone,
     validateCreateLead,
     validateUpdateLead,
     createLead: (dto: CreateLeadDto) => {
