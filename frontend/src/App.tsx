@@ -5,6 +5,7 @@ import { LeadsList } from './components/LeadsList';
 import { LeadDetail } from './components/LeadDetail';
 import { CreateLeadPage } from './components/CreateLeadPage';
 import { EditLeadModal } from './components/EditLeadModal';
+import { ConfirmModal } from './components/ConfirmModal';
 import { Toast, ToastMessage } from './components/Toast';
 import { Lead, Stats, Pagination } from './types';
 import { api } from './api/client';
@@ -13,6 +14,8 @@ export const App: React.FC = () => {
   const [view, setView] = useState<'list' | 'detail' | 'create'>('list');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
+  const [isDeletingLead, setIsDeletingLead] = useState(false);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
@@ -112,19 +115,24 @@ export const App: React.FC = () => {
     handleBackToList();
   };
 
-  const handleDeleteLeadFromList = async (lead: Lead) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${lead.name}"? This action cannot be undone.`
-    );
-    if (!confirmed) return;
+  const handleDeleteLeadFromList = (lead: Lead) => {
+    setLeadToDelete(lead);
+  };
+
+  const handleConfirmDeleteLead = async () => {
+    if (!leadToDelete) return;
 
     try {
-      await api.deleteLead(lead.id);
-      addToast(`Lead "${lead.name}" was deleted.`, 'success');
+      setIsDeletingLead(true);
+      await api.deleteLead(leadToDelete.id);
+      addToast(`Lead "${leadToDelete.name}" was deleted.`, 'success');
+      setLeadToDelete(null);
       fetchLeads();
       fetchStats();
     } catch (err: any) {
       addToast(err.message || 'Failed to delete lead', 'danger');
+    } finally {
+      setIsDeletingLead(false);
     }
   };
 
@@ -212,6 +220,23 @@ export const App: React.FC = () => {
           onToast={addToast}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!leadToDelete}
+        onClose={() => {
+          if (!isDeletingLead) setLeadToDelete(null);
+        }}
+        onConfirm={handleConfirmDeleteLead}
+        title="Delete Lead"
+        message="Are you sure you want to delete this lead? All associated contact details and history will be permanently erased."
+        itemTitle={leadToDelete?.name}
+        itemSubtitle={leadToDelete ? `${leadToDelete.email} • ${leadToDelete.phone}` : undefined}
+        confirmLabel="Delete Lead"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeletingLead}
+        id="delete-lead-modal"
+      />
 
       <Toast toasts={toasts} onDismiss={dismissToast} />
     </div>

@@ -13,6 +13,7 @@ import {
   Pencil,
 } from 'lucide-react';
 import { EditLeadModal } from './EditLeadModal';
+import { ConfirmModal } from './ConfirmModal';
 
 interface LeadDetailProps {
   leadId: string;
@@ -41,6 +42,9 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deletingLead, setDeletingLead] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteLeadModalOpen, setIsDeleteLeadModalOpen] = useState(false);
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
+  const [deletingNote, setDeletingNote] = useState(false);
 
   const fetchLeadData = useCallback(async () => {
     try {
@@ -108,30 +112,30 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
     }
   };
 
-  const handleDeleteNote = async (noteId: string) => {
-    if (!lead) return;
-    if (!window.confirm('Are you sure you want to delete this note?')) return;
+  const handleConfirmDeleteNote = async () => {
+    if (!lead || !noteToDelete) return;
 
     try {
-      await api.deleteNote(lead.id, noteId);
-      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+      setDeletingNote(true);
+      await api.deleteNote(lead.id, noteToDelete.id);
+      setNotes((prev) => prev.filter((n) => n.id !== noteToDelete.id));
       onToast('Note deleted', 'info');
+      setNoteToDelete(null);
     } catch (err: any) {
       onToast(err.message || 'Failed to delete note', 'danger');
+    } finally {
+      setDeletingNote(false);
     }
   };
 
-  const handleDeleteLead = async () => {
+  const handleConfirmDeleteLead = async () => {
     if (!lead) return;
-    const confirmed = window.confirm(
-      `Are you sure you want to delete lead "${lead.name}"? This action cannot be undone.`
-    );
-    if (!confirmed) return;
 
     try {
       setDeletingLead(true);
       await api.deleteLead(lead.id);
       onToast(`Lead "${lead.name}" was deleted.`, 'success');
+      setIsDeleteLeadModalOpen(false);
       onLeadDeleted(lead.id);
     } catch (err: any) {
       onToast(err.message || 'Failed to delete lead', 'danger');
@@ -299,7 +303,7 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
               type="button"
               className="btn btn-danger"
               style={{ width: '100%' }}
-              onClick={handleDeleteLead}
+              onClick={() => setIsDeleteLeadModalOpen(true)}
               disabled={deletingLead}
               id="btn-delete-lead-detail"
             >
@@ -384,7 +388,7 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
                         type="button"
                         className="btn-icon btn-icon-danger"
                         title="Delete Note"
-                        onClick={() => handleDeleteNote(note.id)}
+                        onClick={() => setNoteToDelete(note)}
                         id={`btn-delete-note-${note.id}`}
                       >
                         <Trash2 size={13} />
@@ -407,6 +411,50 @@ export const LeadDetail: React.FC<LeadDetailProps> = ({
           if (onLeadUpdated) onLeadUpdated(updated);
         }}
         onToast={onToast}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteLeadModalOpen}
+        onClose={() => {
+          if (!deletingLead) setIsDeleteLeadModalOpen(false);
+        }}
+        onConfirm={handleConfirmDeleteLead}
+        title="Delete Lead"
+        message="Are you sure you want to permanently delete this lead? All associated notes and information will be removed."
+        itemTitle={lead?.name}
+        itemSubtitle={lead ? `${lead.email} • ${lead.phone}` : undefined}
+        confirmLabel="Delete Lead"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={deletingLead}
+        id="detail-delete-lead-modal"
+      />
+
+      <ConfirmModal
+        isOpen={!!noteToDelete}
+        onClose={() => {
+          if (!deletingNote) setNoteToDelete(null);
+        }}
+        onConfirm={handleConfirmDeleteNote}
+        title="Delete Note"
+        message="Are you sure you want to delete this note from the activity timeline?"
+        itemTitle={noteToDelete?.content}
+        itemSubtitle={
+          noteToDelete
+            ? `Added on ${new Date(noteToDelete.createdAt).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}`
+            : undefined
+        }
+        confirmLabel="Delete Note"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={deletingNote}
+        id="delete-note-modal"
       />
     </>
   );

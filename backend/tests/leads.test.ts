@@ -96,6 +96,26 @@ describe('Leads API Endpoints', () => {
       expect(res.body.success).toBe(false);
       expect(res.body.details.status).toContain('Status must be one of');
     });
+
+    it('should allow creating multiple leads with the same email and phone (1 to N relation)', async () => {
+      const res1 = await request(app).post('/api/leads').send({
+        name: 'Lead One',
+        email: 'shared@example.com',
+        phone: '111-222-3333',
+      }).expect(201);
+
+      const res2 = await request(app).post('/api/leads').send({
+        name: 'Lead Two',
+        email: 'shared@example.com',
+        phone: '111-222-3333',
+      }).expect(201);
+
+      expect(res1.body.id).toBeDefined();
+      expect(res2.body.id).toBeDefined();
+      expect(res1.body.id).not.toBe(res2.body.id);
+      expect(res1.body.email).toBe('shared@example.com');
+      expect(res2.body.email).toBe('shared@example.com');
+    });
   });
 
   describe('GET /api/leads', () => {
@@ -303,6 +323,48 @@ describe('Leads API Endpoints', () => {
         .expect(400);
 
       expect(res.body.success).toBe(false);
+    });
+
+    it('should allow updating lead to share same email/phone as another lead', async () => {
+      await request(app).post('/api/leads').send({
+        name: 'Lead One',
+        email: 'lead1@test.com',
+        phone: '111-0000',
+      }).expect(201);
+
+      const lead2Res = await request(app).post('/api/leads').send({
+        name: 'Lead Two',
+        email: 'lead2@test.com',
+        phone: '222-0000',
+      }).expect(201);
+
+      const res = await request(app)
+        .patch(`/api/leads/${lead2Res.body.id}`)
+        .send({ email: 'lead1@test.com', phone: '111-0000' })
+        .expect(200);
+
+      expect(res.body.email).toBe('lead1@test.com');
+      expect(res.body.phone).toBe('111-0000');
+    });
+
+    it('should allow updating other fields while keeping own email and phone', async () => {
+      const createRes = await request(app).post('/api/leads').send({
+        name: 'Self Update Lead',
+        email: 'self@test.com',
+        phone: '777-1234',
+        status: 'new',
+      }).expect(201);
+
+      const res = await request(app)
+        .patch(`/api/leads/${createRes.body.id}`)
+        .send({
+          email: 'self@test.com',
+          phone: '777-1234',
+          status: 'contacted',
+        })
+        .expect(200);
+
+      expect(res.body.status).toBe('contacted');
     });
 
     it('should return 404 when updating non-existent lead', async () => {

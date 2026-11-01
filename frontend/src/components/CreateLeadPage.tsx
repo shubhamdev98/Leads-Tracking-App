@@ -78,8 +78,11 @@ export const CreateLeadPage: React.FC<CreateLeadPageProps> = ({
       onToast(`Lead "${newLead.name}" created successfully!`, 'success');
       onLeadCreated(newLead);
     } catch (err: any) {
-      if (err instanceof ApiError && err.details?.fields) {
-        setErrors(err.details.fields);
+      if (err instanceof ApiError) {
+        const fieldErrors = err.details?.fields || err.details;
+        if (fieldErrors && typeof fieldErrors === 'object') {
+          setErrors(fieldErrors);
+        }
       }
       setGeneralError(err.message || 'Failed to create lead. Please check your inputs.');
       onToast(err.message || 'Failed to create lead', 'danger');
